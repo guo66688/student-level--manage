@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"student-level-manage/controllers"
 	"student-level-manage/middleware"
 
@@ -9,7 +10,7 @@ import (
 
 func InitRouter() *gin.Engine {
 	r := gin.Default()
-
+	fmt.Println("✅ 路由系统初始化成功")
 	api := r.Group("/api")
 	{
 		api.POST("/auth/login", controllers.Login)

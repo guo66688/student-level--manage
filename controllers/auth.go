@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 )
 
 func Login(c *gin.Context) {
+	fmt.Println("🔥 Login 函数被调用")
+
 	var req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
