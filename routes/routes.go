@@ -25,6 +25,9 @@ func InitRouter() *gin.Engine {
 			auth.POST("/courses", controllers.AddCourse)
 			auth.GET("/courses", controllers.GetCourses)
 
+			auth.POST("/scores", controllers.AddScore)
+			auth.GET("/scores", controllers.GetScores)
+
 		}
 	}
 

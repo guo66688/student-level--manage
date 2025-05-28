@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Course struct {
 	gorm.Model
-	CourseName string
-	CourseCode string `gorm:"unique"` // 课程代码唯一
-	Credit     float64
-	TeacherID  uint // 外键，不设置约束
+	CourseName string  `json:"course_name"`
+	CourseCode string  `json:"course_code" gorm:"unique"`
+	Credit     float64 `json:"credit"`
+	TeacherID  uint    `json:"teacher_id"`
 }
