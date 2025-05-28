@@ -20,14 +20,20 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
+			// 学生模块
 			auth.GET("/students", controllers.GetStudents)
 			auth.POST("/students", controllers.AddStudent)
 
+			// 课程模块
 			auth.POST("/courses", controllers.AddCourse)
 			auth.GET("/courses", controllers.GetCourses)
 
+			// 成绩模块
 			auth.POST("/scores", controllers.AddScore)
 			auth.GET("/scores", controllers.GetScores)
+
+			// 数据分析模块
+			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
 
 		}
 	}
