@@ -23,6 +23,8 @@ func InitRouter() *gin.Engine {
 			// 学生模块
 			auth.GET("/students", controllers.GetStudents)
 			auth.POST("/students", controllers.AddStudent)
+			auth.PUT("/students/:id", controllers.UpdateStudent)
+			auth.DELETE("/students/:id", controllers.DeleteStudent)
 
 			// 课程模块
 			auth.POST("/courses", controllers.AddCourse)
@@ -42,8 +44,12 @@ func InitRouter() *gin.Engine {
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
 
+			auth.GET("/classes", controllers.GetClasses)
 			auth.POST("/classes", controllers.AddClass)
-			auth.GET("/classes/:name/students", controllers.GetClassStudents)
+			auth.PUT("/classes/:id", controllers.UpdateClass)
+			auth.DELETE("/classes/:id", controllers.DeleteClass)
+
+			auth.GET("/students/by_class", controllers.GetStudentsByClass)
 
 		}
 	}
