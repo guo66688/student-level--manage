@@ -53,6 +53,9 @@ func InitRouter() *gin.Engine {
 
 			auth.GET("/analysis/chart", controllers.GetChartFromMongo)
 
+			r.GET("/analytics/chart/types", controllers.GetChartTypes)
+			r.DELETE("/analytics/chart", controllers.DeleteChartData)
+
 		}
 	}
 

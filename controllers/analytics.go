@@ -2,14 +2,17 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
 	"student-level-manage/services"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CourseStats struct {
@@ -177,4 +180,50 @@ func GetChartFromMongo(c *gin.Context) {
 		return
 	}
 	c.JSON(200, data)
+}
+
+func GetChartTypes(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := config.MongoClient.Database("analysis").Collection("charts")
+
+	// 只查询 type 字段的去重值
+	cursor, err := collection.Distinct(ctx, "type", bson.M{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
+		return
+	}
+
+	var types []string
+	for _, v := range cursor {
+		if str, ok := v.(string); ok {
+			types = append(types, str)
+		}
+	}
+
+	c.JSON(http.StatusOK, types)
+}
+
+func DeleteChartData(c *gin.Context) {
+	chartType := c.Query("type")
+	if chartType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "缺少 type 参数"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := config.MongoClient.Database("analysis").Collection("charts")
+	res, err := collection.DeleteMany(ctx, bson.M{"type": chartType})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "删除失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg":     "删除成功",
+		"deleted": res.DeletedCount,
+	})
 }
