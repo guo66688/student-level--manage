@@ -1,6 +1,17 @@
+// SetUserRole godoc
+// @Summary 设置用户角色
+// @Tags 权限管理
+// @Accept json
+// @Produce json
+// @Param binding body models.UserRole true "用户角色绑定请求"
+// @Success 200 {object} map[string]interface{}
+// @Router /user/role [post]
+
+// controllers/user_role.go
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
@@ -29,7 +40,10 @@ func SetUserRole(c *gin.Context) {
 		return
 	}
 
+	config.Redis.Del(config.Ctx, fmt.Sprintf("user:%d:permissions", req.UserID))
+
 	c.JSON(http.StatusOK, gin.H{"msg": "绑定成功"})
+
 }
 
 // 查询用户的角色 ID

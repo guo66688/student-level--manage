@@ -1,47 +1,59 @@
 package middleware
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 // 权限校验中间件，传入 permission key
+
 func RequirePermission(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user, exists := c.Get("user") // 在 JWT 中间件中设置的用户对象
+		user, exists := c.Get("user")
 		if !exists {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "未登录"})
 			return
 		}
 		userID := user.(models.User).ID
 
-		// 查询该用户所有角色
-		var roleIDs []uint
-		if err := config.DB.
-			Table("user_roles").
-			Select("role_id").
-			Where("user_id = ?", userID).
-			Scan(&roleIDs).Error; err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"msg": "查询角色失败"})
-			return
+		var keys []string
+		cacheKey := fmt.Sprintf("user:%d:permissions", userID)
+		val, err := config.Redis.Get(config.Ctx, cacheKey).Result()
+		if err == nil {
+			json.Unmarshal([]byte(val), &keys)
+		} else {
+			// 查询数据库
+			var roleIDs []uint
+			config.DB.Table("user_roles").Select("role_id").Where("user_id = ?", userID).Scan(&roleIDs)
+			config.DB.
+				Table("role_permissions").
+				Joins("JOIN permissions ON permissions.id = role_permissions.permission_id").
+				Where("role_permissions.role_id IN ?", roleIDs).
+				Pluck("permissions.key", &keys)
+
+			// 缓存权限
+			data, _ := json.Marshal(keys)
+			config.Redis.Set(config.Ctx, cacheKey, data, time.Hour)
 		}
 
-		// 查询这些角色是否包含所需权限
-		var count int64
-		err := config.DB.
-			Table("role_permissions").
-			Joins("JOIN permissions ON permissions.id = role_permissions.permission_id").
-			Where("role_permissions.role_id IN ? AND permissions.key = ?", roleIDs, key).
-			Count(&count).Error
-
-		if err != nil || count == 0 {
+		// 校验是否有该权限
+		found := false
+		for _, k := range keys {
+			if k == key {
+				found = true
+				break
+			}
+		}
+		if !found {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"msg": "无权限访问"})
 			return
 		}
-
 		c.Next()
 	}
 }

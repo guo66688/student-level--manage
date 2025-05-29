@@ -1,3 +1,11 @@
+// GetChartFromMongo godoc
+// @Summary 获取图表数据
+// @Tags 数据分析
+// @Produce json
+// @Param type query string true "图表类型"
+// @Success 200 {array} models.ChartData
+// @Router /charts/data [get]
+
 // controllers/chart.go
 package controllers
 

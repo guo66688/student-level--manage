@@ -1,3 +1,14 @@
+// Login godoc
+// @Summary 登录
+// @Description 用户登录，获取 JWT token
+// @Tags 用户认证
+// @Accept json
+// @Produce json
+// @Param login body models.LoginRequest true "登录请求"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
+
 // contollers/auth.go
 package controllers
 

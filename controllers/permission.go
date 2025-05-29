@@ -2,6 +2,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
@@ -73,6 +74,18 @@ func SetRolePermissions(c *gin.Context) {
 			c.JSON(500, gin.H{"msg": "添加权限失败"})
 			return
 		}
+	}
+
+	// 清除所有绑定该角色的用户的权限缓存
+	var userIDs []uint
+	config.DB.
+		Table("user_roles").
+		Select("user_id").
+		Where("role_id = ?", req.RoleID).
+		Scan(&userIDs)
+
+	for _, uid := range userIDs {
+		config.Redis.Del(config.Ctx, fmt.Sprintf("user:%d:permissions", uid))
 	}
 
 	c.JSON(200, gin.H{"msg": "角色权限已更新"})
