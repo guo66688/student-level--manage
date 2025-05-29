@@ -35,6 +35,10 @@ func InitRouter() *gin.Engine {
 			// 数据分析模块
 			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
 
+			auth.GET("/analysis/rank", controllers.GetScoreRanking)
+			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
+			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
+
 		}
 	}
 
