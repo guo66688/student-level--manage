@@ -1,3 +1,4 @@
+// contollers/scores.go
 package controllers
 
 import (

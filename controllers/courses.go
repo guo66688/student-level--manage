@@ -1,3 +1,4 @@
+// contollers/courses.go
 package controllers
 
 import (

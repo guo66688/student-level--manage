@@ -1,3 +1,4 @@
+// contollers/class.go
 package controllers
 
 import (
