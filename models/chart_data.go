@@ -1,7 +1,10 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type ChartData struct {
-	Type   string                 `bson:"type"`   // 类型，比如 "monthly", "pass_rate"
-	Meta   map[string]interface{} `bson:"meta"`   // 元数据，比如 {"course_id": 1}
-	Values interface{}            `bson:"values"` // 实际图表数据（可以是任意结构）
+	ID     primitive.ObjectID     `bson:"_id,omitempty"`
+	Type   string                 `bson:"type"`
+	Meta   map[string]interface{} `bson:"meta"`   // 可选元数据，例如 course_id 等
+	Values interface{}            `bson:"values"` // 存储任意结构化数据，如统计图表数据
 }
