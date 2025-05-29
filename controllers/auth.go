@@ -27,10 +27,8 @@ import (
 func Login(c *gin.Context) {
 	fmt.Println("🔥 Login 函数被调用")
 
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var req models.LoginRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
 		return

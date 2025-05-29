@@ -1,0 +1,1077 @@
+basePath: /api
+definitions:
+  models.Course:
+    type: object
+  models.LoginRequest:
+    properties:
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: dev@example.com
+    name: 开发者
+  description: 用于管理学生、课程、成绩和图表数据的后台 API。
+  title: 学生成绩管理系统 API
+  version: "1.0"
+paths:
+  /api/analysis/monthly:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取月度成绩统计
+      tags:
+      - analytics
+  /api/analysis/pass_rate:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课程通过率分析
+      tags:
+      - analytics
+  /api/analysis/rank:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取成绩排行榜
+      tags:
+      - analytics
+  /api/analysis/rank/cache:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 清空成绩排行榜缓存
+      tags:
+      - analytics
+  /api/analytics/course-stats:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课程统计
+      tags:
+      - analytics
+  /api/charts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 图表列表
+      tags:
+      - charts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 新增图表
+      tags:
+      - charts
+  /api/charts/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除图表
+      tags:
+      - charts
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新图表
+      tags:
+      - charts
+  /api/charts/data:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除图表数据
+      tags:
+      - charts
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取图表数据
+      tags:
+      - charts
+  /api/charts/types:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 图表类型列表
+      tags:
+      - charts
+  /api/classes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取班级列表
+      tags:
+      - classes
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加班级
+      tags:
+      - classes
+  /api/classes/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除班级
+      tags:
+      - classes
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新班级
+      tags:
+      - classes
+  /api/courses:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课程列表
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加课程
+      tags:
+      - courses
+  /api/courses/{id}:
+    delete:
+      parameters:
+      - description: 课程ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 删除课程
+      tags:
+      - 课程管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 课程ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 课程信息
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 更新课程
+      tags:
+      - 课程管理
+  /api/permissions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取权限列表
+      tags:
+      - permission
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加权限
+      tags:
+      - permission
+  /api/permissions/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除权限
+      tags:
+      - permission
+  /api/role/permission_ids:
+    get:
+      parameters:
+      - description: 角色ID
+        in: query
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取角色的权限ID列表
+      tags:
+      - 权限管理
+  /api/role/permissions:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 设置角色权限
+      tags:
+      - permission
+  /api/roles:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取角色列表
+      tags:
+      - role
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加角色
+      tags:
+      - role
+  /api/roles/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除角色
+      tags:
+      - role
+  /api/scores:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取成绩列表
+      tags:
+      - scores
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加成绩
+      tags:
+      - scores
+  /api/scores/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除成绩
+      tags:
+      - scores
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新成绩
+      tags:
+      - scores
+  /api/students:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取学生列表
+      tags:
+      - students
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加学生
+      tags:
+      - students
+  /api/students/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除学生
+      tags:
+      - students
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新学生信息
+      tags:
+      - students
+  /api/students/by_class:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据班级获取学生
+      tags:
+      - students
+  /api/user/permissions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取当前用户权限
+      tags:
+      - user
+  /api/user/role:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户角色 ID
+      tags:
+      - user_role
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 设置用户角色
+      tags:
+      - user_role
+  /api/user/roles:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取当前用户角色
+      tags:
+      - user
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户列表
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加用户
+      tags:
+      - user
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除用户
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新用户信息
+      tags:
+      - user
+  /api/users/{id}/reset_password:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 重置用户密码
+      tags:
+      - user
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录，获取 JWT token
+      parameters:
+      - description: 登录请求
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 登录
+      tags:
+      - 用户认证
+swagger: "2.0"
