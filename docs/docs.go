@@ -368,6 +368,13 @@ const docTemplate = `{
                 "summary": "更新图表",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "图表ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -399,6 +406,13 @@ const docTemplate = `{
                 ],
                 "summary": "删除图表",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "图表ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",
@@ -500,6 +514,13 @@ const docTemplate = `{
                 "summary": "更新班级",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "班级ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -531,6 +552,13 @@ const docTemplate = `{
                 ],
                 "summary": "删除班级",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "班级ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",
@@ -792,6 +820,13 @@ const docTemplate = `{
                 "summary": "删除权限",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "权限ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -975,6 +1010,13 @@ const docTemplate = `{
                 "summary": "删除角色",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "角色ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -1075,6 +1117,13 @@ const docTemplate = `{
                 "summary": "更新成绩",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "成绩ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -1106,6 +1155,13 @@ const docTemplate = `{
                 ],
                 "summary": "删除成绩",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "成绩ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",
@@ -1241,6 +1297,13 @@ const docTemplate = `{
                 "summary": "更新学生信息",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "学生ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -1272,6 +1335,13 @@ const docTemplate = `{
                 ],
                 "summary": "删除学生",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "学生ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",
@@ -1507,6 +1577,13 @@ const docTemplate = `{
                 "summary": "更新用户信息",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "请求参数",
                         "name": "data",
                         "in": "body",
@@ -1538,6 +1615,13 @@ const docTemplate = `{
                 ],
                 "summary": "删除用户",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",
@@ -1572,6 +1656,13 @@ const docTemplate = `{
                 ],
                 "summary": "重置用户密码",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "请求参数",
                         "name": "data",

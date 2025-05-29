@@ -380,6 +380,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 图表ID
+        in: path
+        name: id
+        required: true
+        type: string
       - description: 请求参数
         in: body
         name: data
@@ -401,6 +406,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 图表ID
+        in: path
+        name: id
+        required: true
+        type: string
       - description: 请求参数
         in: body
         name: data
@@ -531,6 +541,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 班级ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -552,6 +567,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 班级ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -722,6 +742,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 权限ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -841,6 +866,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -906,6 +936,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 成绩ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -927,6 +962,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 成绩ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -992,6 +1032,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 学生ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -1013,6 +1058,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 学生ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -1187,6 +1237,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -1208,6 +1263,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
@@ -1230,6 +1290,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: 请求参数
         in: body
         name: data
