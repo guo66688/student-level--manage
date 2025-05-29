@@ -74,6 +74,7 @@ func AddUser(c *gin.Context) {
 // @Tags user
 // @Accept json
 // @Produce json
+// @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/users/{id} [put]
@@ -98,6 +99,7 @@ func UpdateUser(c *gin.Context) {
 // @Tags user
 // @Accept json
 // @Produce json
+// @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/users/{id} [delete]
@@ -116,6 +118,7 @@ func DeleteUser(c *gin.Context) {
 // @Tags user
 // @Accept json
 // @Produce json
+// @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/users/{id}/reset_password [put]

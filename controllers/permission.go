@@ -55,6 +55,7 @@ func AddPermission(c *gin.Context) {
 // @Tags permission
 // @Accept json
 // @Produce json
+// @Param id path int true "权限ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/permissions/{id} [delete]

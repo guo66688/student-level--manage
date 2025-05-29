@@ -20,8 +20,7 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
-
-			auth.GET("/user/role", controllers.GetUserRole) // 用于后台指定用户查角色
+			auth.GET("/doc/models", controllers.ShowAllModels)
 
 			auth.GET("/users", controllers.ListUsers)
 			auth.POST("/users", controllers.AddUser)
@@ -45,8 +44,7 @@ func InitRouter() *gin.Engine {
 
 			// ✅ 用户角色绑定
 			auth.POST("/user/role", controllers.SetUserRole)
-			auth.GET("/user/role", controllers.GetUserRole)
-
+			auth.GET("/user/role", controllers.GetUserRole) // 用于后台指定用户查角色
 			// ✅ 学生管理
 			auth.GET("/students", middleware.RequirePermission("student:view"), controllers.GetStudents)
 			auth.POST("/students", middleware.RequirePermission("student:add"), controllers.AddStudent)

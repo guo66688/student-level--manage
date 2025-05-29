@@ -54,6 +54,7 @@ func AddRole(c *gin.Context) {
 // @Tags role
 // @Accept json
 // @Produce json
+// @Param id path int true "角色ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/roles/{id} [delete]

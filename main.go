@@ -1,8 +1,8 @@
 // @title 学生成绩管理系统 API
 // @version 1.0
 // @description 用于管理学生、课程、成绩和图表数据的后台 API。
-// @contact.name 开发者
-// @contact.email dev@example.com
+// @contact.name icoffee
+// @contact.email 1596740959@qq.com
 // @host localhost:8080
 // @BasePath /api
 
@@ -17,10 +17,12 @@ import (
 	"student-level-manage/routes"
 	"time"
 
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
+	swaggerFiles "github.com/swaggo/files"
 
+	// ✅ 替代旧的 swaggerFiles
 	_ "student-level-manage/docs"
+
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // swag 会生成这个包

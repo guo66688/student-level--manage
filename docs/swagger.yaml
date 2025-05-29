@@ -1,6 +1,70 @@
 basePath: /api
 definitions:
+  controllers.docModels:
+    properties:
+      chart_data:
+        $ref: '#/definitions/models.ChartData'
+      course:
+        $ref: '#/definitions/models.Course'
+      login_request:
+        $ref: '#/definitions/models.LoginRequest'
+      permission:
+        $ref: '#/definitions/models.Permission'
+      role:
+        $ref: '#/definitions/models.Role'
+      role_permission:
+        $ref: '#/definitions/models.RolePermission'
+      score:
+        $ref: '#/definitions/models.Score'
+      student:
+        $ref: '#/definitions/models.Student'
+      user:
+        $ref: '#/definitions/models.User'
+      user_role:
+        $ref: '#/definitions/models.UserRole'
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.ChartData:
+    properties:
+      id:
+        type: string
+      meta:
+        additionalProperties: true
+        type: object
+      type:
+        example: monthly
+        type: string
+      values: {}
+    type: object
   models.Course:
+    properties:
+      course_code:
+        example: MATH101
+        type: string
+      course_name:
+        example: 数学
+        type: string
+      createdAt:
+        type: string
+      credit:
+        example: 3
+        type: number
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      teacher_id:
+        example: 10
+        type: integer
+      updatedAt:
+        type: string
     type: object
   models.LoginRequest:
     properties:
@@ -11,11 +75,149 @@ definitions:
         example: admin
         type: string
     type: object
+  models.Permission:
+    description: 权限定义，例如 "student:view"
+    properties:
+      created_at:
+        example: 1716940800
+        type: integer
+      description:
+        description: 权限说明
+        example: 查看学生列表
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        description: 权限标识
+        example: student:view
+        type: string
+      updated_at:
+        example: 1716940800
+        type: integer
+    type: object
+  models.Role:
+    description: 角色定义，例如 "admin"
+    properties:
+      created_at:
+        example: 1716940800
+        type: integer
+      description:
+        description: 角色说明
+        example: 系统管理员
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        description: 角色标识
+        example: admin
+        type: string
+      updated_at:
+        example: 1716940800
+        type: integer
+    type: object
+  models.RolePermission:
+    description: 角色与权限的绑定关系
+    properties:
+      id:
+        example: 1
+        type: integer
+      permission_id:
+        example: 2
+        type: integer
+      role_id:
+        example: 1
+        type: integer
+    type: object
+  models.Score:
+    properties:
+      course_id:
+        example: 101
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      exam_date:
+        example: "2025-05-01"
+        type: string
+      id:
+        type: integer
+      score:
+        example: 89.5
+        type: number
+      student_id:
+        example: 1
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Student:
+    properties:
+      birth_date:
+        example: "2005-09-01"
+        type: string
+      class_name:
+        example: 高一1班
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      gender:
+        example: 男
+        type: string
+      id:
+        type: integer
+      name:
+        example: 张三
+        type: string
+      student_no:
+        example: "20230001"
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      nickname:
+        type: string
+      password:
+        description: ✅ 添加 type:varchar(255)
+        type: string
+      updatedAt:
+        type: string
+      username:
+        description: ✅ 添加 type:varchar(255)
+        type: string
+    type: object
+  models.UserRole:
+    description: 用户与角色的绑定关系
+    properties:
+      id:
+        example: 1
+        type: integer
+      role_id:
+        example: 1
+        type: integer
+      user_id:
+        example: 3
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact:
-    email: dev@example.com
-    name: 开发者
+    email: 1596740959@qq.com
+    name: icoffee
   description: 用于管理学生、课程、成绩和图表数据的后台 API。
   title: 学生成绩管理系统 API
   version: "1.0"
@@ -1074,4 +1276,19 @@ paths:
       summary: 登录
       tags:
       - 用户认证
+  /doc/models:
+    get:
+      consumes:
+      - application/json
+      description: 此接口无实际用途，仅用于强制 Swagger 输出所有模型结构体定义
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.docModels'
+      summary: '[文档] 展示所有模型结构体（用于 Swagger 展示）'
+      tags:
+      - ModelDocs
 swagger: "2.0"

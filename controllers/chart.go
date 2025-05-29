@@ -1,11 +1,3 @@
-// GetChartFromMongo godoc
-// @Summary 获取图表数据
-// @Tags 数据分析
-// @Produce json
-// @Param type query string true "图表类型"
-// @Success 200 {array} models.ChartData
-// @Router /charts/data [get]
-
 // controllers/chart.go
 package controllers
 
@@ -85,6 +77,7 @@ func AddChart(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
+// @Param id path string true "图表ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/charts/{id} [put]
@@ -125,6 +118,7 @@ func UpdateChart(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
+// @Param id path string true "图表ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/charts/{id} [delete]

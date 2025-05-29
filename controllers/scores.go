@@ -96,6 +96,7 @@ func GetScores(c *gin.Context) {
 // @Tags scores
 // @Accept json
 // @Produce json
+// @Param id path int true "成绩ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores/{id} [put]
@@ -119,6 +120,7 @@ func UpdateScore(c *gin.Context) {
 // @Tags scores
 // @Accept json
 // @Produce json
+// @Param id path int true "成绩ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores/{id} [delete]

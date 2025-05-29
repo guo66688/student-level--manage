@@ -79,6 +79,7 @@ func AddClass(c *gin.Context) {
 // @Tags classes
 // @Accept json
 // @Produce json
+// @Param id path int true "班级ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes/{id} [put]
@@ -106,6 +107,7 @@ func UpdateClass(c *gin.Context) {
 // @Tags classes
 // @Accept json
 // @Produce json
+// @Param id path int true "班级ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes/{id} [delete]

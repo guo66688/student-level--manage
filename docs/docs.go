@@ -10,8 +10,8 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "开发者",
-            "email": "dev@example.com"
+            "name": "icoffee",
+            "email": "1596740959@qq.com"
         },
         "version": "{{.Version}}"
     },
@@ -1636,11 +1636,128 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/doc/models": {
+            "get": {
+                "description": "此接口无实际用途，仅用于强制 Swagger 输出所有模型结构体定义",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ModelDocs"
+                ],
+                "summary": "[文档] 展示所有模型结构体（用于 Swagger 展示）",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.docModels"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "controllers.docModels": {
+            "type": "object",
+            "properties": {
+                "chart_data": {
+                    "$ref": "#/definitions/models.ChartData"
+                },
+                "course": {
+                    "$ref": "#/definitions/models.Course"
+                },
+                "login_request": {
+                    "$ref": "#/definitions/models.LoginRequest"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.Permission"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "role_permission": {
+                    "$ref": "#/definitions/models.RolePermission"
+                },
+                "score": {
+                    "$ref": "#/definitions/models.Score"
+                },
+                "student": {
+                    "$ref": "#/definitions/models.Student"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_role": {
+                    "$ref": "#/definitions/models.UserRole"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.ChartData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "meta": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "type": {
+                    "type": "string",
+                    "example": "monthly"
+                },
+                "values": {}
+            }
+        },
         "models.Course": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "course_code": {
+                    "type": "string",
+                    "example": "MATH101"
+                },
+                "course_name": {
+                    "type": "string",
+                    "example": "数学"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "credit": {
+                    "type": "number",
+                    "example": 3
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "teacher_id": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
         },
         "models.LoginRequest": {
             "type": "object",
@@ -1652,6 +1769,199 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
+                }
+            }
+        },
+        "models.Permission": {
+            "description": "权限定义，例如 \"student:view\"",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer",
+                    "example": 1716940800
+                },
+                "description": {
+                    "description": "权限说明",
+                    "type": "string",
+                    "example": "查看学生列表"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "description": "权限标识",
+                    "type": "string",
+                    "example": "student:view"
+                },
+                "updated_at": {
+                    "type": "integer",
+                    "example": 1716940800
+                }
+            }
+        },
+        "models.Role": {
+            "description": "角色定义，例如 \"admin\"",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer",
+                    "example": 1716940800
+                },
+                "description": {
+                    "description": "角色说明",
+                    "type": "string",
+                    "example": "系统管理员"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "description": "角色标识",
+                    "type": "string",
+                    "example": "admin"
+                },
+                "updated_at": {
+                    "type": "integer",
+                    "example": 1716940800
+                }
+            }
+        },
+        "models.RolePermission": {
+            "description": "角色与权限的绑定关系",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "permission_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.Score": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "exam_date": {
+                    "type": "string",
+                    "example": "2025-05-01"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "number",
+                    "example": 89.5
+                },
+                "student_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Student": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string",
+                    "example": "2005-09-01"
+                },
+                "class_name": {
+                    "type": "string",
+                    "example": "高一1班"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "男"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "张三"
+                },
+                "student_no": {
+                    "type": "string",
+                    "example": "20230001"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "description": "✅ 添加 type:varchar(255)",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "description": "✅ 添加 type:varchar(255)",
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserRole": {
+            "description": "用户与角色的绑定关系",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         }

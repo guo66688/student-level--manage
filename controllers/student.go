@@ -55,6 +55,7 @@ func GetStudents(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
+// @Param id path int true "学生ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students/{id} [put]
@@ -78,6 +79,7 @@ func UpdateStudent(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
+// @Param id path int true "学生ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students/{id} [delete]
