@@ -655,7 +655,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "课程管理"
+                    "courses"
                 ],
                 "summary": "更新课程",
                 "parameters": [
@@ -706,7 +706,7 @@ const docTemplate = `{
             },
             "delete": {
                 "tags": [
-                    "课程管理"
+                    "courses"
                 ],
                 "summary": "删除课程",
                 "parameters": [

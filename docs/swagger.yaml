@@ -655,7 +655,7 @@ paths:
             type: object
       summary: 删除课程
       tags:
-      - 课程管理
+      - courses
     put:
       consumes:
       - application/json
@@ -693,7 +693,7 @@ paths:
             type: object
       summary: 更新课程
       tags:
-      - 课程管理
+      - courses
   /api/permissions:
     get:
       consumes:

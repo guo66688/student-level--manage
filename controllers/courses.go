@@ -57,7 +57,7 @@ func GetCourses(c *gin.Context) {
 }
 
 // @Summary 更新课程
-// @Tags 课程管理
+// @Tags courses
 // @Accept json
 // @Produce json
 // @Param id path int true "课程ID"
@@ -82,7 +82,7 @@ func UpdateCourse(c *gin.Context) {
 }
 
 // @Summary 删除课程
-// @Tags 课程管理
+// @Tags courses
 // @Param id path int true "课程ID"
 // @Success 200 {object} map[string]string
 // @Failure 500 {object} map[string]string
