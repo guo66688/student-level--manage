@@ -20,6 +20,13 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
+
+			auth.GET("/users", controllers.ListUsers)
+			auth.POST("/users", controllers.AddUser)
+			auth.PUT("/users/:id", controllers.UpdateUser)
+			auth.DELETE("/users/:id", controllers.DeleteUser)
+			auth.PUT("/users/:id/reset_password", controllers.ResetPassword)
+
 			// ✅ 权限管理
 			auth.POST("/permissions", controllers.AddPermission)
 			auth.GET("/permissions", controllers.GetPermissions)
