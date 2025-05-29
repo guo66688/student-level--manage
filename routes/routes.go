@@ -51,6 +51,8 @@ func InitRouter() *gin.Engine {
 
 			auth.GET("/students/by_class", controllers.GetStudentsByClass)
 
+			auth.GET("/analysis/chart", controllers.GetChartFromMongo)
+
 		}
 	}
 

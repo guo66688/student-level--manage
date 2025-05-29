@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
+	"student-level-manage/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -36,28 +37,6 @@ func GetCourseStats(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, stats)
 }
-
-// 学生成绩排名接口
-// func GetScoreRanking(c *gin.Context) {
-// 	type Result struct {
-// 		StudentID uint    `json:"student_id"`
-// 		AvgScore  float64 `json:"avg_score"`
-// 	}
-
-// 	var results []Result
-// 	err := config.DB.
-// 		Table("scores").
-// 		Select("student_id, AVG(score) as avg_score").
-// 		Group("student_id").
-// 		Order("avg_score DESC").
-// 		Scan(&results).Error
-
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, results)
-// }
 
 // 成绩按月份统计图表
 func GetMonthlyStats(c *gin.Context) {
@@ -184,4 +163,18 @@ func ClearScoreRankingCache(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"msg": "缓存已清除"})
+}
+
+func GetChartFromMongo(c *gin.Context) {
+	chartType := c.Query("type")
+	if chartType == "" {
+		c.JSON(400, gin.H{"msg": "缺少参数 type"})
+		return
+	}
+	data, err := services.GetChartData(chartType)
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "查询失败"})
+		return
+	}
+	c.JSON(200, data)
 }

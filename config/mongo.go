@@ -9,7 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var MongoDB *mongo.Client
+var MongoClient *mongo.Client // 客户端连接
+var MongoDB *mongo.Database   // 数据库对象
 
 func InitMongo() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -24,6 +25,7 @@ func InitMongo() {
 		log.Fatal("❌ MongoDB Ping失败:", err)
 	}
 
-	MongoDB = client
+	MongoClient = client
+	MongoDB = MongoClient.Database("student_manage") // ✅ 指定数据库名
 	log.Println("✅ MongoDB连接成功")
 }
