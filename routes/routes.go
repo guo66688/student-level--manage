@@ -21,11 +21,15 @@ func InitRouter() *gin.Engine {
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
 
+			auth.GET("/user/role", controllers.GetUserRole) // 用于后台指定用户查角色
+
 			auth.GET("/users", controllers.ListUsers)
 			auth.POST("/users", controllers.AddUser)
 			auth.PUT("/users/:id", controllers.UpdateUser)
 			auth.DELETE("/users/:id", controllers.DeleteUser)
 			auth.PUT("/users/:id/reset_password", controllers.ResetPassword)
+			auth.GET("/user/roles", controllers.GetUserRoles) // 用于前端获取当前登录用户角色（新文件 user.go 中的）
+			auth.GET("/user/permissions", controllers.GetUserPermissions)
 
 			// ✅ 权限管理
 			auth.POST("/permissions", controllers.AddPermission)

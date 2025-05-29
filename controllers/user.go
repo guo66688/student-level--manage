@@ -95,3 +95,61 @@ func ResetPassword(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"msg": "密码已重置"})
 }
+
+func GetUserPermissions(c *gin.Context) {
+	userAny, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "未登录"})
+		return
+	}
+	user := userAny.(models.User)
+
+	// 获取用户角色 ID
+	var roleIDs []uint
+	err := config.DB.
+		Table("user_roles").
+		Select("role_id").
+		Where("user_id = ?", user.ID).
+		Scan(&roleIDs).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "角色查询失败"})
+		return
+	}
+
+	// 查询这些角色对应的权限 key
+	var keys []string
+	err = config.DB.
+		Table("role_permissions").
+		Joins("JOIN permissions ON role_permissions.permission_id = permissions.id").
+		Where("role_permissions.role_id IN ?", roleIDs).
+		Pluck("permissions.key", &keys).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "权限查询失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"permissions": keys})
+}
+
+func GetUserRoles(c *gin.Context) {
+	userAny, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "未登录"})
+		return
+	}
+	user := userAny.(models.User)
+
+	var roles []models.Role
+	err := config.DB.
+		Joins("JOIN user_roles ur ON ur.role_id = roles.id").
+		Where("ur.user_id = ?", user.ID).
+		Find(&roles).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, roles)
+}
