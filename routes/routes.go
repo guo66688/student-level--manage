@@ -26,6 +26,11 @@ func InitRouter() *gin.Engine {
 			auth.DELETE("/permissions/:id", controllers.DeletePermission)
 			auth.POST("/role/permissions", controllers.SetRolePermissions)     // 设置角色权限
 			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole) // 获取角色权限
+
+			auth.GET("/students", controllers.GetStudents)
+			auth.POST("/students", middleware.RequirePermission("student:add"), controllers.AddStudent)
+			auth.DELETE("/students/:id", middleware.RequirePermission("student:delete"), controllers.DeleteStudent)
+
 			// 角色管理
 			auth.POST("/roles", controllers.AddRole)
 			auth.GET("/roles", controllers.GetRoles)
