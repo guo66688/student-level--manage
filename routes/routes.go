@@ -25,6 +25,7 @@ func InitRouter() *gin.Engine {
 			auth.POST("/students", controllers.AddStudent)
 			auth.PUT("/students/:id", controllers.UpdateStudent)
 			auth.DELETE("/students/:id", controllers.DeleteStudent)
+			auth.GET("/students/by_class", controllers.GetStudentsByClass)
 
 			// 课程模块
 			auth.POST("/courses", controllers.AddCourse)
@@ -34,28 +35,32 @@ func InitRouter() *gin.Engine {
 			auth.POST("/scores", controllers.AddScore)
 			auth.GET("/scores", controllers.GetScores)
 
+			// 班级模块
+			auth.GET("/classes", controllers.GetClasses)
+			auth.POST("/classes", controllers.AddClass)
+			auth.PUT("/classes/:id", controllers.UpdateClass)
+			auth.DELETE("/classes/:id", controllers.DeleteClass)
+
 			// 数据分析模块
 			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
-
-			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
 
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
 
-			auth.GET("/classes", controllers.GetClasses)
-			auth.POST("/classes", controllers.AddClass)
-			auth.PUT("/classes/:id", controllers.UpdateClass)
-			auth.DELETE("/classes/:id", controllers.DeleteClass)
+			// 图表管理接口（Mongo 图表）
+			chart := auth.Group("/charts")
+			{
+				chart.GET("", controllers.ListCharts)         // GET /api/charts?type=xxx
+				chart.POST("", controllers.AddChart)          // 新增
+				chart.PUT("/:id", controllers.UpdateChart)    // 编辑
+				chart.DELETE("/:id", controllers.DeleteChart) // 删除（按 ID）
 
-			auth.GET("/students/by_class", controllers.GetStudentsByClass)
-
-			auth.GET("/analysis/chart", controllers.GetChartFromMongo)
-
-			r.GET("/analytics/chart/types", controllers.GetChartTypes)
-			r.DELETE("/analytics/chart", controllers.DeleteChartData)
-
+				chart.GET("/types", controllers.GetChartTypes)     // 图表类型列表
+				chart.GET("/data", controllers.GetChartFromMongo)  // 前端按类型获取图表数据
+				chart.DELETE("/data", controllers.DeleteChartData) // 按类型删除图表数据
+			}
 		}
 	}
 
