@@ -42,3 +42,38 @@ func DeletePermission(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
 }
+
+// 设置角色权限
+func SetRolePermissions(c *gin.Context) {
+	var req struct {
+		RoleID        uint   `json:"role_id"`
+		PermissionIDs []uint `json:"permission_ids"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"msg": "参数错误"})
+		return
+	}
+
+	// 先删除旧的关联
+	if err := config.DB.Where("role_id = ?", req.RoleID).Delete(&models.RolePermission{}).Error; err != nil {
+		c.JSON(500, gin.H{"msg": "删除旧权限失败"})
+		return
+	}
+
+	// 添加新关联
+	var records []models.RolePermission
+	for _, pid := range req.PermissionIDs {
+		records = append(records, models.RolePermission{
+			RoleID:       req.RoleID,
+			PermissionID: pid,
+		})
+	}
+	if len(records) > 0 {
+		if err := config.DB.Create(&records).Error; err != nil {
+			c.JSON(500, gin.H{"msg": "添加权限失败"})
+			return
+		}
+	}
+
+	c.JSON(200, gin.H{"msg": "角色权限已更新"})
+}

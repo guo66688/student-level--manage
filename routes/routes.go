@@ -20,6 +20,23 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
+			// 权限管理模块
+			auth.POST("/permissions", controllers.AddPermission)
+			auth.GET("/permissions", controllers.GetPermissions)
+			auth.DELETE("/permissions/:id", controllers.DeletePermission)
+			auth.POST("/role/permissions", controllers.SetRolePermissions)     // 设置角色权限
+			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole) // 获取角色权限
+			// 角色管理
+			auth.POST("/roles", controllers.AddRole)
+			auth.GET("/roles", controllers.GetRoles)
+			auth.DELETE("/roles/:id", controllers.DeleteRole)
+			// 角色权限设置
+			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole)
+			auth.POST("/role/permissions", controllers.SetRolePermissions)
+
+			auth.POST("/user/role", controllers.SetUserRole) // 绑定用户角色
+			auth.GET("/user/role", controllers.GetUserRole)  // 查询用户角色
+
 			// 学生模块
 			auth.GET("/students", controllers.GetStudents)
 			auth.POST("/students", controllers.AddStudent)
