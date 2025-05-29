@@ -36,6 +36,11 @@ func main() {
 		&models.Student{},
 		&models.Course{},
 		&models.Score{},
+		// ✅ 新增权限管理相关表
+		&models.Permission{},
+		&models.Role{},
+		&models.RolePermission{},
+		&models.UserRole{},
 	)
 
 	// 启动路由服务
