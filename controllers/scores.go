@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
+	"student-level-manage/redisop"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,6 +24,17 @@ func AddScore(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "score": req})
+
+	// 添加成绩后更新 Redis 排行榜
+	var avg float64
+	config.DB.
+		Table("scores").
+		Select("AVG(score)").
+		Where("student_id = ?", req.StudentID).
+		Scan(&avg)
+
+	_ = redisop.UpdateStudentRank(req.StudentID, avg) // 忽略错误处理
+
 }
 
 func GetScores(c *gin.Context) {

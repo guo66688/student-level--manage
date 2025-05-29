@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
+	"student-level-manage/redisop"
 
 	"github.com/gin-gonic/gin"
 )
@@ -105,4 +106,21 @@ func GetPassRate(c *gin.Context) {
 		"total":     total,
 		"rate":      fmt.Sprintf("%.2f%%", rate),
 	})
+}
+
+func GetScoreRankingRedis(c *gin.Context) {
+	ranks, err := redisop.GetTopN(10)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "获取 Redis 排行榜失败"})
+		return
+	}
+
+	var result []gin.H
+	for _, z := range ranks {
+		result = append(result, gin.H{
+			"student_id": z.Member,
+			"avg_score":  z.Score,
+		})
+	}
+	c.JSON(http.StatusOK, result)
 }

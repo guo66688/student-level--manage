@@ -39,6 +39,8 @@ func InitRouter() *gin.Engine {
 			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
 
+			auth.GET("/analysis/rank_redis", controllers.GetScoreRankingRedis)
+
 		}
 	}
 
