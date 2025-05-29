@@ -1,4 +1,3 @@
-// routes.go
 package routes
 
 import (
@@ -12,76 +11,74 @@ import (
 func InitRouter() *gin.Engine {
 	r := gin.Default()
 	fmt.Println("✅ 路由系统初始化成功")
+
 	api := r.Group("/api")
 	{
+		// 登录接口
 		api.POST("/auth/login", controllers.Login)
 
-		// 加认证保护
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
-			// 权限管理模块
+			// ✅ 权限管理
 			auth.POST("/permissions", controllers.AddPermission)
 			auth.GET("/permissions", controllers.GetPermissions)
 			auth.DELETE("/permissions/:id", controllers.DeletePermission)
-			auth.POST("/role/permissions", controllers.SetRolePermissions)     // 设置角色权限
-			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole) // 获取角色权限
 
-			auth.GET("/students", controllers.GetStudents)
-			auth.POST("/students", middleware.RequirePermission("student:add"), controllers.AddStudent)
-			auth.DELETE("/students/:id", middleware.RequirePermission("student:delete"), controllers.DeleteStudent)
-
-			// 角色管理
+			// ✅ 角色管理
 			auth.POST("/roles", controllers.AddRole)
 			auth.GET("/roles", controllers.GetRoles)
 			auth.DELETE("/roles/:id", controllers.DeleteRole)
-			// 角色权限设置
-			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole)
 			auth.POST("/role/permissions", controllers.SetRolePermissions)
+			auth.GET("/role/permission_ids", controllers.GetPermissionsByRole)
 
-			auth.POST("/user/role", controllers.SetUserRole) // 绑定用户角色
-			auth.GET("/user/role", controllers.GetUserRole)  // 查询用户角色
+			// ✅ 用户角色绑定
+			auth.POST("/user/role", controllers.SetUserRole)
+			auth.GET("/user/role", controllers.GetUserRole)
 
-			// 学生模块
-			auth.GET("/students", controllers.GetStudents)
-			auth.POST("/students", controllers.AddStudent)
-			auth.PUT("/students/:id", controllers.UpdateStudent)
-			auth.DELETE("/students/:id", controllers.DeleteStudent)
-			auth.GET("/students/by_class", controllers.GetStudentsByClass)
+			// ✅ 学生管理
+			auth.GET("/students", middleware.RequirePermission("student:view"), controllers.GetStudents)
+			auth.POST("/students", middleware.RequirePermission("student:add"), controllers.AddStudent)
+			auth.PUT("/students/:id", middleware.RequirePermission("student:update"), controllers.UpdateStudent)
+			auth.DELETE("/students/:id", middleware.RequirePermission("student:delete"), controllers.DeleteStudent)
+			auth.GET("/students/by_class", middleware.RequirePermission("student:view"), controllers.GetStudentsByClass)
 
-			// 课程模块
-			auth.POST("/courses", controllers.AddCourse)
-			auth.GET("/courses", controllers.GetCourses)
+			// ✅ 课程模块
+			auth.GET("/courses", middleware.RequirePermission("course:view"), controllers.GetCourses)
+			auth.POST("/courses", middleware.RequirePermission("course:add"), controllers.AddCourse)
+			auth.PUT("/courses/:id", middleware.RequirePermission("course:update"), controllers.UpdateCourse)
+			auth.DELETE("/courses/:id", middleware.RequirePermission("course:delete"), controllers.DeleteCourse)
 
-			// 成绩模块
-			auth.POST("/scores", controllers.AddScore)
-			auth.GET("/scores", controllers.GetScores)
+			// ✅ 成绩管理
 
-			// 班级模块
-			auth.GET("/classes", controllers.GetClasses)
-			auth.POST("/classes", controllers.AddClass)
-			auth.PUT("/classes/:id", controllers.UpdateClass)
-			auth.DELETE("/classes/:id", controllers.DeleteClass)
+			auth.POST("/scores", middleware.RequirePermission("score:add"), controllers.AddScore)
+			auth.GET("/scores", middleware.RequirePermission("score:view"), controllers.GetScores)
+			auth.PUT("/scores/:id", middleware.RequirePermission("score:update"), controllers.UpdateScore)
+			auth.DELETE("/scores/:id", middleware.RequirePermission("score:delete"), controllers.DeleteScore)
 
-			// 数据分析模块
+			// ✅ 班级管理
+			auth.GET("/classes", middleware.RequirePermission("class:view"), controllers.GetClasses)
+			auth.POST("/classes", middleware.RequirePermission("class:add"), controllers.AddClass)
+			auth.PUT("/classes/:id", middleware.RequirePermission("class:update"), controllers.UpdateClass)
+			auth.DELETE("/classes/:id", middleware.RequirePermission("class:delete"), controllers.DeleteClass)
+
+			// ✅ 数据分析（无需权限控制）
 			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
 			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
-
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
 
-			// 图表管理接口（Mongo 图表）
-			chart := auth.Group("/charts")
+			// ✅ 图表管理（MongoDB）
+			charts := auth.Group("/charts")
 			{
-				chart.GET("", controllers.ListCharts)         // GET /api/charts?type=xxx
-				chart.POST("", controllers.AddChart)          // 新增
-				chart.PUT("/:id", controllers.UpdateChart)    // 编辑
-				chart.DELETE("/:id", controllers.DeleteChart) // 删除（按 ID）
-
-				chart.GET("/types", controllers.GetChartTypes)     // 图表类型列表
-				chart.GET("/data", controllers.GetChartFromMongo)  // 前端按类型获取图表数据
-				chart.DELETE("/data", controllers.DeleteChartData) // 按类型删除图表数据
+				charts.GET("", controllers.ListCharts)
+				charts.POST("", middleware.RequirePermission("chart:add"), controllers.AddChart)
+				charts.PUT("/:id", middleware.RequirePermission("chart:update"), controllers.UpdateChart)
+				charts.DELETE("/:id", middleware.RequirePermission("chart:delete"), controllers.DeleteChart)
+				charts.GET("/types", controllers.GetChartTypes)
+				charts.GET("/data", controllers.GetChartFromMongo)
+				charts.DELETE("/data", controllers.DeleteChartData)
 			}
 		}
 	}
