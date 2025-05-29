@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
-	"student-level-manage/redisop"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type CourseStats struct {
@@ -37,26 +37,26 @@ func GetCourseStats(c *gin.Context) {
 }
 
 // 学生成绩排名接口
-func GetScoreRanking(c *gin.Context) {
-	type Result struct {
-		StudentID uint    `json:"student_id"`
-		AvgScore  float64 `json:"avg_score"`
-	}
+// func GetScoreRanking(c *gin.Context) {
+// 	type Result struct {
+// 		StudentID uint    `json:"student_id"`
+// 		AvgScore  float64 `json:"avg_score"`
+// 	}
 
-	var results []Result
-	err := config.DB.
-		Table("scores").
-		Select("student_id, AVG(score) as avg_score").
-		Group("student_id").
-		Order("avg_score DESC").
-		Scan(&results).Error
+// 	var results []Result
+// 	err := config.DB.
+// 		Table("scores").
+// 		Select("student_id, AVG(score) as avg_score").
+// 		Group("student_id").
+// 		Order("avg_score DESC").
+// 		Scan(&results).Error
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
-		return
-	}
-	c.JSON(http.StatusOK, results)
-}
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, results)
+// }
 
 // 成绩按月份统计图表
 func GetMonthlyStats(c *gin.Context) {
@@ -108,19 +108,79 @@ func GetPassRate(c *gin.Context) {
 	})
 }
 
-func GetScoreRankingRedis(c *gin.Context) {
-	ranks, err := redisop.GetTopN(10)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": "获取 Redis 排行榜失败"})
+// 获取学生成绩排行榜（先查 Redis，缓存失效则查 DB）
+func GetScoreRanking(c *gin.Context) {
+	key := "score:rank"
+
+	// 分页参数
+	start := 0
+	limit := 10
+	if s := c.Query("offset"); s != "" {
+		fmt.Sscanf(s, "%d", &start)
+	}
+	if l := c.Query("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	end := start + limit - 1
+
+	// 从 Redis 获取
+	zset, err := config.Redis.ZRevRangeWithScores(config.Ctx, key, int64(start), int64(end)).Result()
+	if err == nil && len(zset) > 0 {
+		var result []gin.H
+		for _, z := range zset {
+			result = append(result, gin.H{
+				"student_id": z.Member,
+				"avg_score":  z.Score,
+			})
+		}
+		c.JSON(200, result)
 		return
 	}
 
-	var result []gin.H
-	for _, z := range ranks {
-		result = append(result, gin.H{
-			"student_id": z.Member,
-			"avg_score":  z.Score,
+	// 数据库查询
+	type Result struct {
+		StudentID uint    `json:"student_id"`
+		AvgScore  float64 `json:"avg_score"`
+	}
+	var list []Result
+	if err := config.DB.
+		Table("scores").
+		Select("student_id, AVG(score) as avg_score").
+		Group("student_id").
+		Order("avg_score DESC").
+		Scan(&list).Error; err != nil {
+		c.JSON(500, gin.H{"msg": "数据库查询失败"})
+		return
+	}
+
+	// 写入 Redis ZSet 缓存
+	pipe := config.Redis.Pipeline()
+	for _, s := range list {
+		pipe.ZAdd(config.Ctx, key, redis.Z{
+			Score:  s.AvgScore,
+			Member: s.StudentID,
 		})
 	}
-	c.JSON(http.StatusOK, result)
+	pipe.Expire(config.Ctx, key, 3600) // 1 小时
+	_, _ = pipe.Exec(config.Ctx)
+
+	// 返回分页部分
+	end = min(end+1, len(list))
+	c.JSON(200, list[start:end])
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func ClearScoreRankingCache(c *gin.Context) {
+	err := config.Redis.Del(config.Ctx, "score:rank").Err()
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "清除失败"})
+		return
+	}
+	c.JSON(200, gin.H{"msg": "缓存已清除"})
 }
