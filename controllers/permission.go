@@ -10,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetPermissions godoc
+// @Summary 获取权限列表
+// @Tags permission
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/permissions [get]
 // 获取所有权限
 func GetPermissions(c *gin.Context) {
 	var list []models.Permission
@@ -20,6 +28,14 @@ func GetPermissions(c *gin.Context) {
 	c.JSON(http.StatusOK, list)
 }
 
+// AddPermission godoc
+// @Summary 添加权限
+// @Tags permission
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/permissions [post]
 // 添加权限
 func AddPermission(c *gin.Context) {
 	var perm models.Permission
@@ -34,6 +50,14 @@ func AddPermission(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "id": perm.ID})
 }
 
+// DeletePermission godoc
+// @Summary 删除权限
+// @Tags permission
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/permissions/{id} [delete]
 // 删除权限
 func DeletePermission(c *gin.Context) {
 	id := c.Param("id")
@@ -44,6 +68,14 @@ func DeletePermission(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
 }
 
+// SetRolePermissions godoc
+// @Summary 设置角色权限
+// @Tags permission
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/role/permissions [post]
 // 设置角色权限
 func SetRolePermissions(c *gin.Context) {
 	var req struct {

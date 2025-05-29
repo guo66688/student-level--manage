@@ -11,6 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetClasses godoc
+// @Summary 获取班级列表
+// @Tags classes
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/classes [get]
 // 查询所有班级（带 Redis 缓存）
 func GetClasses(c *gin.Context) {
 	const cacheKey = "class:list"
@@ -44,6 +52,14 @@ func invalidateClassCache() {
 	config.Redis.Del(config.Ctx, "class:list")
 }
 
+// AddClass godoc
+// @Summary 添加班级
+// @Tags classes
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/classes [post]
 func AddClass(c *gin.Context) {
 	var class models.Class
 	if err := c.ShouldBindJSON(&class); err != nil {
@@ -58,6 +74,14 @@ func AddClass(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "class": class})
 }
 
+// UpdateClass godoc
+// @Summary 更新班级
+// @Tags classes
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/classes/{id} [put]
 func UpdateClass(c *gin.Context) {
 	id := c.Param("id")
 	var class models.Class
@@ -77,6 +101,14 @@ func UpdateClass(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "class": class})
 }
 
+// DeleteClass godoc
+// @Summary 删除班级
+// @Tags classes
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/classes/{id} [delete]
 func DeleteClass(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Class{}, id).Error; err != nil {

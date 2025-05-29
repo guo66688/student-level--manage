@@ -1,3 +1,12 @@
+// @title 学生成绩管理系统 API
+// @version 1.0
+// @description 用于管理学生、课程、成绩和图表数据的后台 API。
+// @contact.name 开发者
+// @contact.email dev@example.com
+// @host localhost:8080
+// @BasePath /api
+
+// main.go
 package main
 
 import (
@@ -7,7 +16,14 @@ import (
 	"student-level-manage/redisop"
 	"student-level-manage/routes"
 	"time"
+
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+
+	_ "student-level-manage/docs"
 )
+
+// swag 会生成这个包
 
 func main() {
 	// 初始化数据库连接
@@ -36,7 +52,6 @@ func main() {
 		&models.Student{},
 		&models.Course{},
 		&models.Score{},
-		// ✅ 新增权限管理相关表
 		&models.Permission{},
 		&models.Role{},
 		&models.RolePermission{},
@@ -45,5 +60,9 @@ func main() {
 
 	// 启动路由服务
 	r := routes.InitRouter()
+
+	// ✅ 注册 Swagger 接口文档
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.Run(":8080")
 }

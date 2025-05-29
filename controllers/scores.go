@@ -13,6 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AddScore godoc
+// @Summary 添加成绩
+// @Tags scores
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/scores [post]
 func AddScore(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -66,6 +74,14 @@ func AddScore(c *gin.Context) {
 
 }
 
+// GetScores godoc
+// @Summary 获取成绩列表
+// @Tags scores
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/scores [get]
 func GetScores(c *gin.Context) {
 	var scores []models.Score
 	if err := config.DB.Find(&scores).Error; err != nil {
@@ -75,6 +91,14 @@ func GetScores(c *gin.Context) {
 	c.JSON(http.StatusOK, scores)
 }
 
+// UpdateScore godoc
+// @Summary 更新成绩
+// @Tags scores
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/scores/{id} [put]
 func UpdateScore(c *gin.Context) {
 	id := c.Param("id")
 	var score models.Score
@@ -90,6 +114,14 @@ func UpdateScore(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "score": score})
 }
 
+// DeleteScore godoc
+// @Summary 删除成绩
+// @Tags scores
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/scores/{id} [delete]
 func DeleteScore(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Score{}, id).Error; err != nil {

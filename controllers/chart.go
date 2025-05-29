@@ -21,6 +21,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// ListCharts godoc
+// @Summary 图表列表
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts [get]
 // 图表列表接口（支持按类型筛选）
 func ListCharts(c *gin.Context) {
 	typeParam := c.Query("type")
@@ -46,6 +54,14 @@ func ListCharts(c *gin.Context) {
 	c.JSON(http.StatusOK, charts)
 }
 
+// AddChart godoc
+// @Summary 新增图表
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts [post]
 // 图表新增接口
 func AddChart(c *gin.Context) {
 	var chart models.ChartData
@@ -64,6 +80,14 @@ func AddChart(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功"})
 }
 
+// UpdateChart godoc
+// @Summary 更新图表
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts/{id} [put]
 // 图表编辑接口（根据 ID 更新）
 func UpdateChart(c *gin.Context) {
 	id := c.Param("id")
@@ -96,6 +120,14 @@ func UpdateChart(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功"})
 }
 
+// DeleteChart godoc
+// @Summary 删除图表
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts/{id} [delete]
 // 删除图表接口
 func DeleteChart(c *gin.Context) {
 	idStr := c.Param("id")

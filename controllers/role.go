@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetRoles godoc
+// @Summary 获取角色列表
+// @Tags role
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/roles [get]
 // 获取角色列表
 func GetRoles(c *gin.Context) {
 	var roles []models.Role
@@ -19,6 +27,14 @@ func GetRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, roles)
 }
 
+// AddRole godoc
+// @Summary 添加角色
+// @Tags role
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/roles [post]
 // 添加角色
 func AddRole(c *gin.Context) {
 	var role models.Role
@@ -33,6 +49,14 @@ func AddRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功"})
 }
 
+// DeleteRole godoc
+// @Summary 删除角色
+// @Tags role
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/roles/{id} [delete]
 // 删除角色
 func DeleteRole(c *gin.Context) {
 	id := c.Param("id")
@@ -43,6 +67,14 @@ func DeleteRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
 }
 
+// @Summary 获取角色的权限ID列表
+// @Tags 权限管理
+// @Param role_id query int true "角色ID"
+// @Produce json
+// @Success 200 {array} uint
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/role/permission_ids [get]
 // 获取某个角色绑定的权限 ID 列表
 func GetPermissionsByRole(c *gin.Context) {
 	roleID := c.Query("role_id")

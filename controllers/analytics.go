@@ -22,6 +22,14 @@ type CourseStats struct {
 	MinScore float64 `json:"min_score"`
 }
 
+// GetCourseStats godoc
+// @Summary 获取课程统计
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/analytics/course-stats [get]
 func GetCourseStats(c *gin.Context) {
 	var stats []CourseStats
 	query := `
@@ -41,6 +49,14 @@ func GetCourseStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
+// GetMonthlyStats godoc
+// @Summary 获取月度成绩统计
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/analysis/monthly [get]
 // 成绩按月份统计图表
 func GetMonthlyStats(c *gin.Context) {
 	type Result struct {
@@ -64,8 +80,15 @@ func GetMonthlyStats(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
+// GetPassRate godoc
+// @Summary 获取课程通过率分析
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/analysis/pass_rate [get]
 // 某科考试通过率分析
-
 func GetPassRate(c *gin.Context) {
 	courseID := c.Query("course_id")
 	if courseID == "" {
@@ -91,6 +114,14 @@ func GetPassRate(c *gin.Context) {
 	})
 }
 
+// GetScoreRanking godoc
+// @Summary 获取成绩排行榜
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/analysis/rank [get]
 // 获取学生成绩排行榜（先查 Redis，缓存失效则查 DB）
 func GetScoreRanking(c *gin.Context) {
 	key := "score:rank"
@@ -159,6 +190,14 @@ func min(a, b int) int {
 	return b
 }
 
+// ClearScoreRankingCache godoc
+// @Summary 清空成绩排行榜缓存
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/analysis/rank/cache [delete]
 func ClearScoreRankingCache(c *gin.Context) {
 	err := config.Redis.Del(config.Ctx, "score:rank").Err()
 	if err != nil {
@@ -168,6 +207,14 @@ func ClearScoreRankingCache(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "缓存已清除"})
 }
 
+// GetChartFromMongo godoc
+// @Summary 获取图表数据
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts/data [get]
 func GetChartFromMongo(c *gin.Context) {
 	chartType := c.Query("type")
 	if chartType == "" {
@@ -182,6 +229,14 @@ func GetChartFromMongo(c *gin.Context) {
 	c.JSON(200, data)
 }
 
+// GetChartTypes godoc
+// @Summary 图表类型列表
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts/types [get]
 func GetChartTypes(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -205,6 +260,14 @@ func GetChartTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, types)
 }
 
+// DeleteChartData godoc
+// @Summary 删除图表数据
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/charts/data [delete]
 func DeleteChartData(c *gin.Context) {
 	chartType := c.Query("type")
 	if chartType == "" {

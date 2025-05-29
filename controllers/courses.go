@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AddCourse godoc
+// @Summary 添加课程
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/courses [post]
 func AddCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
@@ -31,6 +39,14 @@ func AddCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "course": course})
 }
 
+// GetCourses godoc
+// @Summary 获取课程列表
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/courses [get]
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
 	if err := config.DB.Find(&courses).Error; err != nil {
@@ -40,6 +56,16 @@ func GetCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 }
 
+// @Summary 更新课程
+// @Tags 课程管理
+// @Accept json
+// @Produce json
+// @Param id path int true "课程ID"
+// @Param course body models.Course true "课程信息"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /api/courses/{id} [put]
 func UpdateCourse(c *gin.Context) {
 	id := c.Param("id")
 	var course models.Course
@@ -55,6 +81,12 @@ func UpdateCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "course": course})
 }
 
+// @Summary 删除课程
+// @Tags 课程管理
+// @Param id path int true "课程ID"
+// @Success 200 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/courses/{id} [delete]
 func DeleteCourse(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Course{}, id).Error; err != nil {

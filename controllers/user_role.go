@@ -1,12 +1,3 @@
-// SetUserRole godoc
-// @Summary 设置用户角色
-// @Tags 权限管理
-// @Accept json
-// @Produce json
-// @Param binding body models.UserRole true "用户角色绑定请求"
-// @Success 200 {object} map[string]interface{}
-// @Router /user/role [post]
-
 // controllers/user_role.go
 package controllers
 
@@ -19,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SetUserRole godoc
+// @Summary 设置用户角色
+// @Tags user_role
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/user/role [post]
 // 设置用户角色
 func SetUserRole(c *gin.Context) {
 	var req struct {
@@ -46,6 +45,14 @@ func SetUserRole(c *gin.Context) {
 
 }
 
+// GetUserRole godoc
+// @Summary 获取用户角色 ID
+// @Tags user_role
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/user/role [get]
 // 查询用户的角色 ID
 func GetUserRole(c *gin.Context) {
 	userID := c.Query("user_id")

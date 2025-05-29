@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ListUsers godoc
+// @Summary 获取用户列表
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/users [get]
 // 用户列表（支持分页与关键词）
 func ListUsers(c *gin.Context) {
 	var users []models.User
@@ -35,6 +43,14 @@ func ListUsers(c *gin.Context) {
 	})
 }
 
+// AddUser godoc
+// @Summary 添加用户
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/users [post]
 // 添加用户
 func AddUser(c *gin.Context) {
 	var user models.User
@@ -53,6 +69,14 @@ func AddUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "user": user})
 }
 
+// UpdateUser godoc
+// @Summary 更新用户信息
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/users/{id} [put]
 // 更新用户基本信息
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
@@ -69,6 +93,14 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "user": user})
 }
 
+// DeleteUser godoc
+// @Summary 删除用户
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/users/{id} [delete]
 // 删除用户
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
@@ -79,6 +111,14 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
 }
 
+// ResetPassword godoc
+// @Summary 重置用户密码
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/users/{id}/reset_password [put]
 // 重置密码
 func ResetPassword(c *gin.Context) {
 	id := c.Param("id")
@@ -96,6 +136,14 @@ func ResetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "密码已重置"})
 }
 
+// GetUserPermissions godoc
+// @Summary 获取当前用户权限
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/user/permissions [get]
 func GetUserPermissions(c *gin.Context) {
 	userAny, exists := c.Get("user")
 	if !exists {
@@ -132,6 +180,14 @@ func GetUserPermissions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"permissions": keys})
 }
 
+// GetUserRoles godoc
+// @Summary 获取当前用户角色
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param data body object true "请求参数"
+// @Success 200 {object} map[string]interface{} "返回信息"
+// @Router /api/user/roles [get]
 func GetUserRoles(c *gin.Context) {
 	userAny, exists := c.Get("user")
 	if !exists {
