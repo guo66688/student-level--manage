@@ -42,6 +42,9 @@ func InitRouter() *gin.Engine {
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
 
+			auth.POST("/classes", controllers.AddClass)
+			auth.GET("/classes/:name/students", controllers.GetClassStudents)
+
 		}
 	}
 
