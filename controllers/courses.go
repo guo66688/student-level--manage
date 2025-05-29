@@ -38,3 +38,27 @@ func GetCourses(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, courses)
 }
+
+func UpdateCourse(c *gin.Context) {
+	id := c.Param("id")
+	var course models.Course
+	if err := config.DB.First(&course, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"msg": "未找到课程"})
+		return
+	}
+	if err := c.ShouldBindJSON(&course); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
+		return
+	}
+	config.DB.Save(&course)
+	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "course": course})
+}
+
+func DeleteCourse(c *gin.Context) {
+	id := c.Param("id")
+	if err := config.DB.Delete(&models.Course{}, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "删除失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
+}

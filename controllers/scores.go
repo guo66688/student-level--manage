@@ -45,3 +45,27 @@ func GetScores(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, scores)
 }
+
+func UpdateScore(c *gin.Context) {
+	id := c.Param("id")
+	var score models.Score
+	if err := config.DB.First(&score, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"msg": "未找到成绩"})
+		return
+	}
+	if err := c.ShouldBindJSON(&score); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
+		return
+	}
+	config.DB.Save(&score)
+	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "score": score})
+}
+
+func DeleteScore(c *gin.Context) {
+	id := c.Param("id")
+	if err := config.DB.Delete(&models.Score{}, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "删除失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
+}
