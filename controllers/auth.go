@@ -1,8 +1,7 @@
-// contollers/auth.go
+// controllers/auth.go
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Login godoc
@@ -22,24 +22,35 @@ import (
 // @Produce json
 // @Param login body models.LoginRequest true "登录请求"
 // @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
-	fmt.Println("🔥 Login 函数被调用")
-
 	var req models.LoginRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
 		return
 	}
 
+	// 1）先按用户名查询用户
 	var user models.User
-	if err := config.DB.Where("username = ? AND password = ?", req.Username, req.Password).First(&user).Error; err != nil {
+	if err := config.DB.
+		Where("username = ?", req.Username).
+		First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
 		return
 	}
 
+	// 2）用 bcrypt 校验前端传来的明文密码 vs 数据库里的哈希
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(req.Password),
+	); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
+		return
+	}
+
+	// 3）密码校验通过，签发 JWT
 	exp := time.Now().Add(24 * time.Hour)
 	claims := &middleware.Claims{
 		UserID: user.ID,
@@ -50,11 +61,11 @@ func Login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, _ := token.SignedString(middleware.JwtKey)
 
-	// 设置 Cookie
+	// （可选）设置 Cookie
 	c.SetCookie("token", tokenStr, 3600*24, "/", "localhost", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"msg":   "登录成功",
-		"token": tokenStr, // 可用于 Postman 测试时直接拷贝
+		"token": tokenStr,
 	})
 }
