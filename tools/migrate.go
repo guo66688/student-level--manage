@@ -1,5 +1,7 @@
 // tools\migrate.go
-// package main
+package main
+
+import "student-level-manage/config"
 
 // import (
 // 	"fmt"
@@ -10,13 +12,13 @@
 // 	"student-level-manage/models"
 // )
 
-// func main_5() {
-// 	// 初始化数据库
-// 	config.InitDB()
-// 	db := config.DB
+func main_6() {
+	// 初始化数据库
+	config.InitDB()
+	// db := config.DB
 
-// 	migrateStudentClassNameToClassID(db)
-// }
+	// migrateStudentClassNameToClassID(db)
+}
 
 // func migrateStudentClassNameToClassID(db *gorm.DB) {
 // 	var students []models.Student
