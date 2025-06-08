@@ -11,11 +11,12 @@ package main
 
 import (
 	"log"
+	"time"
+
 	"student-level-manage/config"
 	"student-level-manage/models"
 	"student-level-manage/redisop"
 	"student-level-manage/routes"
-	"time"
 
 	swaggerFiles "github.com/swaggo/files"
 
@@ -58,6 +59,7 @@ func main() {
 		&models.Role{},
 		&models.RolePermission{},
 		&models.UserRole{},
+		&models.Class{},
 	)
 
 	// 启动路由服务

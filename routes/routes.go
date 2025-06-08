@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+
 	"student-level-manage/controllers"
 	"student-level-manage/middleware"
 
@@ -77,6 +78,7 @@ func InitRouter() *gin.Engine {
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
+			auth.GET("/dashboard/stats", controllers.GetDashboardStats)
 
 			// ✅ 图表管理（MongoDB）
 			charts := auth.Group("/charts")

@@ -5,10 +5,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
+
 	"student-level-manage/config"
 	"student-level-manage/models"
 	"student-level-manage/services"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -72,7 +73,6 @@ func GetMonthlyStats(c *gin.Context) {
 			GROUP BY month
 			ORDER BY month
 		`).Scan(&results).Error
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "统计失败"})
 		return
@@ -288,5 +288,35 @@ func DeleteChartData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"msg":     "删除成功",
 		"deleted": res.DeletedCount,
+	})
+}
+
+// GetDashboardStats godoc
+// @Summary 仪表盘统计数据
+// @Tags analytics
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/dashboard/stats [get]
+func GetDashboardStats(c *gin.Context) {
+	var studentsCount int64
+	var coursesCount int64
+	var classesCount int64
+	var avgScore float64
+
+	config.DB.Model(&models.Student{}).Count(&studentsCount)
+	config.DB.Model(&models.Course{}).Count(&coursesCount)
+	config.DB.Model(&models.Class{}).Count(&classesCount)
+	// 这里假设 class 是你存班级的表
+	config.DB.
+		Table("scores").
+		Select("AVG(score)").
+		Row().
+		Scan(&avgScore)
+
+	c.JSON(http.StatusOK, gin.H{
+		"students": studentsCount,
+		"courses":  coursesCount,
+		"classes":  classesCount,
+		"avgScore": avgScore,
 	})
 }
