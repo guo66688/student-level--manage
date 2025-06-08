@@ -9,5 +9,7 @@ type Student struct {
 	Name      string `gorm:"type:varchar(255)" json:"name" example:"张三"`
 	Gender    string `gorm:"type:varchar(50)" json:"gender" example:"男"`
 	BirthDate string `gorm:"type:varchar(255)" json:"birth_date" example:"2005-09-01"`
-	ClassName string `gorm:"type:varchar(255)" json:"class_name" example:"高一1班"`
+
+	ClassID uint  `json:"class_id"`                        // 外键字段
+	Class   Class `gorm:"foreignKey:ClassID" json:"class"` // 自动加载关联班级
 }
