@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func main() {
+func main_1() {
 	h, _ := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
 	fmt.Println(string(h))
 }
