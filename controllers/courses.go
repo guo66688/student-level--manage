@@ -3,6 +3,8 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
+
 	"student-level-manage/config"
 	"student-level-manage/models"
 
@@ -44,16 +46,47 @@ func AddCourse(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param page query int false "页码" default(1)
+// @Param size query int false "每页条数" default(10)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/courses [get]
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
-	if err := config.DB.Find(&courses).Error; err != nil {
+	var total int64
+
+	// 获取分页参数
+	page := c.DefaultQuery("page", "1")  // 获取页码，默认是第1页
+	size := c.DefaultQuery("size", "10") // 获取每页的条数，默认10
+
+	// 将字符串转换为整数
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "页码无效"})
+		return
+	}
+	sizeInt, err := strconv.Atoi(size)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "每页条数无效"})
+		return
+	}
+
+	// 获取课程总数
+	if err := config.DB.Model(&models.Course{}).Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
-	c.JSON(http.StatusOK, courses)
+
+	// 查询课程数据（分页）
+	if err := config.DB.Offset((pageInt - 1) * sizeInt).Limit(sizeInt).Find(&courses).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
+		return
+	}
+
+	// 返回课程数据和总数
+	c.JSON(http.StatusOK, gin.H{
+		"data":  courses,
+		"total": total,
+	})
 }
 
 // @Summary 更新课程
