@@ -6,6 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"student-level-manage/config"
+	"student-level-manage/models"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -17,19 +20,16 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// JWT 鉴权中间件
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenStr := ""
-
+		// 1. 获取 token 字符串
+		var tokenStr string
 		authHeader := c.GetHeader("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
-		} else {
-			// 允许从 Cookie 中读取 token
-			cookieToken, err := c.Cookie("token")
-			if err == nil {
-				tokenStr = cookieToken
-			}
+		} else if cookie, err := c.Cookie("token"); err == nil {
+			tokenStr = cookie
 		}
 
 		if tokenStr == "" {
@@ -37,6 +37,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// 2. 解析并校验 token
 		token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return JwtKey, nil
 		})
@@ -51,7 +52,17 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user_id", claims.UserID)
+		// 3. 根据 userID 从数据库加载用户记录
+		var user models.User
+		if err := config.DB.First(&user, claims.UserID).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "用户不存在"})
+			return
+		}
+
+		// 4. 将用户信息存入 context，供后续中间件/handler 使用
+		c.Set("user", user)
+		c.Set("user_id", user.ID)
+
 		c.Next()
 	}
 }
