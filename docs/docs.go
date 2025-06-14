@@ -18,45 +18,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/analysis/monthly": {
+        "/analysis/monthly": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "获取每月平均成绩的时间序列数据",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "analytics"
                 ],
-                "summary": "获取月度成绩统计",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
+                "summary": "获取月度平均成绩趋势",
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "月度平均成绩列表",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Result"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/analysis/pass_rate": {
+        "/analysis/pass_rate": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "可选传入 course_id 获取单个课程，否则返回所有课程通过率",
                 "produces": [
                     "application/json"
                 ],
@@ -66,61 +62,84 @@ const docTemplate = `{
                 "summary": "获取课程通过率分析",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
+                        "type": "integer",
+                        "example": 1001,
+                        "description": "课程 ID（可选，单个课程）",
+                        "name": "course_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "通过率列表或单个课程分析",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Pass"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/analysis/rank": {
+        "/analysis/rank": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "获取学生按平均成绩排名的前10名",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "analytics"
                 ],
-                "summary": "获取成绩排行榜",
+                "summary": "获取成绩排行榜（含姓名）",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
+                        "type": "integer",
+                        "example": 0,
+                        "description": "起始位置（默认0）",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "description": "返回数量（默认10）",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "学生平均成绩排行榜",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ScoreRankRow"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "数据库查询失败",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/analysis/rank/cache": {
+        "/analysis/rank/cache": {
             "delete": {
                 "consumes": [
                     "application/json"
@@ -132,33 +151,31 @@ const docTemplate = `{
                     "analytics"
                 ],
                 "summary": "清空成绩排行榜缓存",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "清除结果",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "清除失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/analytics/course-stats": {
+        "/analytics/course-stats": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "获取每门课程的平均、最高和最低成绩",
                 "produces": [
                     "application/json"
                 ],
@@ -166,269 +183,23 @@ const docTemplate = `{
                     "analytics"
                 ],
                 "summary": "获取课程统计",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "课程统计列表",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CourseStats"
+                            }
                         }
-                    }
-                }
-            }
-        },
-        "/api/charts": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "图表列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "新增图表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/charts/data": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "获取图表数据",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "删除图表数据",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/charts/types": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "图表类型列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/charts/{id}": {
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "更新图表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "图表ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
+                    "500": {
+                        "description": "查询失败",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "charts"
-                ],
-                "summary": "删除图表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "图表ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -446,17 +217,6 @@ const docTemplate = `{
                     "classes"
                 ],
                 "summary": "获取班级列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "返回信息",
@@ -480,12 +240,12 @@ const docTemplate = `{
                 "summary": "添加班级",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "description": "班级信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Class"
                         }
                     }
                 ],
@@ -515,18 +275,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "班级ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "请求参数",
+                        "description": "班级信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Class"
                         }
                     }
                 ],
@@ -554,19 +315,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "班级ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
                     }
                 ],
                 "responses": {
@@ -575,166 +328,6 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/courses": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "courses"
-                ],
-                "summary": "获取课程列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "courses"
-                ],
-                "summary": "添加课程",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "返回信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/courses/{id}": {
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "courses"
-                ],
-                "summary": "更新课程",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "课程ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "课程信息",
-                        "name": "course",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Course"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "courses"
-                ],
-                "summary": "删除课程",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "课程ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
                         }
                     }
                 }
@@ -752,17 +345,6 @@ const docTemplate = `{
                     "permission"
                 ],
                 "summary": "获取权限列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "返回信息",
@@ -786,12 +368,12 @@ const docTemplate = `{
                 "summary": "添加权限",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "description": "权限信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Permission"
                         }
                     }
                 ],
@@ -821,19 +403,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "权限ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
                     }
                 ],
                 "responses": {
@@ -853,12 +427,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "权限管理"
+                    "role"
                 ],
                 "summary": "获取角色的权限ID列表",
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 2,
                         "description": "角色ID",
                         "name": "role_id",
                         "in": "query",
@@ -942,17 +517,6 @@ const docTemplate = `{
                     "role"
                 ],
                 "summary": "获取角色列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "返回信息",
@@ -976,12 +540,12 @@ const docTemplate = `{
                 "summary": "添加角色",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "description": "角色信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Role"
                         }
                     }
                 ],
@@ -1011,19 +575,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "角色ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
                     }
                 ],
                 "responses": {
@@ -1049,17 +605,6 @@ const docTemplate = `{
                     "scores"
                 ],
                 "summary": "获取成绩列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "返回信息",
@@ -1083,12 +628,12 @@ const docTemplate = `{
                 "summary": "添加成绩",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "description": "成绩信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Score"
                         }
                     }
                 ],
@@ -1118,18 +663,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "成绩ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "请求参数",
+                        "description": "成绩信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Score"
                         }
                     }
                 ],
@@ -1157,19 +703,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "成绩ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
                     }
                 ],
                 "responses": {
@@ -1195,17 +733,6 @@ const docTemplate = `{
                     "students"
                 ],
                 "summary": "获取学生列表",
-                "parameters": [
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "返回信息",
@@ -1229,12 +756,12 @@ const docTemplate = `{
                 "summary": "添加学生",
                 "parameters": [
                     {
-                        "description": "请求参数",
+                        "description": "学生信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Student"
                         }
                     }
                 ],
@@ -1263,13 +790,12 @@ const docTemplate = `{
                 "summary": "根据班级获取学生",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
+                        "type": "string",
+                        "example": "\"软件一班\"",
+                        "description": "班级名称",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1298,18 +824,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "学生ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "请求参数",
+                        "description": "学生信息",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/models.Student"
                         }
                     }
                 ],
@@ -1337,19 +864,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "example": 1,
                         "description": "学生ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
                     }
                 ],
                 "responses": {
@@ -1411,13 +930,12 @@ const docTemplate = `{
                 "summary": "获取用户角色 ID",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
+                        "type": "integer",
+                        "example": 1,
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1710,19 +1228,310 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "返回 token 信息",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "参数错误",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "用户名或密码错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/charts": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "图表列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"score-trend\"",
+                        "description": "图表类型（可选）",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "新增图表",
+                "parameters": [
+                    {
+                        "description": "图表数据",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChartData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/charts/data": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "获取图表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"score-trend\"",
+                        "description": "图表类型",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "图表数据内容",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "缺少参数",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "删除图表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"pass-rate\"",
+                        "description": "图表类型",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除结果",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数缺失",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "删除失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/charts/types": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "图表类型列表",
+                "responses": {
+                    "200": {
+                        "description": "图表类型集合",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/charts/{id}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "更新图表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"60f7d2f5e13f1e3c48a2a1a2\"",
+                        "description": "图表ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "图表数据",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChartData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "charts"
+                ],
+                "summary": "删除图表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"60f7d2f5e13f1e3c48a2a1a2\"",
+                        "description": "图表ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/stats": {
+            "get": {
+                "description": "包括学生数、课程数、班级数、平均成绩",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "仪表盘统计数据",
+                "responses": {
+                    "200": {
+                        "description": "统计数据",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -1759,29 +1568,50 @@ const docTemplate = `{
                 "chart_data": {
                     "$ref": "#/definitions/models.ChartData"
                 },
+                "class": {
+                    "$ref": "#/definitions/models.ClassDoc"
+                },
                 "course": {
-                    "$ref": "#/definitions/models.Course"
+                    "$ref": "#/definitions/models.CourseDoc"
+                },
+                "course_stats": {
+                    "$ref": "#/definitions/models.CourseStats"
                 },
                 "login_request": {
                     "$ref": "#/definitions/models.LoginRequest"
                 },
+                "pass": {
+                    "$ref": "#/definitions/models.Pass"
+                },
                 "permission": {
                     "$ref": "#/definitions/models.Permission"
                 },
+                "permission_doc": {
+                    "$ref": "#/definitions/models.PermissionDoc"
+                },
+                "result": {
+                    "$ref": "#/definitions/models.Result"
+                },
                 "role": {
                     "$ref": "#/definitions/models.Role"
+                },
+                "role_doc": {
+                    "$ref": "#/definitions/models.RoleDoc"
                 },
                 "role_permission": {
                     "$ref": "#/definitions/models.RolePermission"
                 },
                 "score": {
-                    "$ref": "#/definitions/models.Score"
+                    "$ref": "#/definitions/models.ScoreDoc"
+                },
+                "score_rank": {
+                    "$ref": "#/definitions/models.ScoreRankRow"
                 },
                 "student": {
-                    "$ref": "#/definitions/models.Student"
+                    "$ref": "#/definitions/models.StudentDoc"
                 },
                 "user": {
-                    "$ref": "#/definitions/models.User"
+                    "$ref": "#/definitions/models.UserDoc"
                 },
                 "user_role": {
                     "$ref": "#/definitions/models.UserRole"
@@ -1817,7 +1647,54 @@ const docTemplate = `{
                 "values": {}
             }
         },
-        "models.Course": {
+        "models.Class": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "students": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Student"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ClassDoc": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "高一1班"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.CourseDoc": {
             "type": "object",
             "properties": {
                 "course_code": {
@@ -1828,25 +1705,46 @@ const docTemplate = `{
                     "type": "string",
                     "example": "数学"
                 },
-                "createdAt": {
-                    "type": "string"
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
                 },
                 "credit": {
                     "type": "number",
                     "example": 3
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "teacher_id": {
                     "type": "integer",
                     "example": 10
                 },
-                "updatedAt": {
-                    "type": "string"
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.CourseStats": {
+            "type": "object",
+            "properties": {
+                "avg_score": {
+                    "type": "number",
+                    "example": 85.3
+                },
+                "course_id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "max_score": {
+                    "type": "number",
+                    "example": 98
+                },
+                "min_score": {
+                    "type": "number",
+                    "example": 62
                 }
             }
         },
@@ -1860,6 +1758,27 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
+                }
+            }
+        },
+        "models.Pass": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "passed": {
+                    "type": "integer",
+                    "example": 45
+                },
+                "rate": {
+                    "type": "number",
+                    "example": 90
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 50
                 }
             }
         },
@@ -1891,6 +1810,36 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PermissionDoc": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "key": {
+                    "type": "string",
+                    "example": "student:view"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "学生管理"
+                }
+            }
+        },
+        "models.Result": {
+            "type": "object",
+            "properties": {
+                "avg": {
+                    "type": "number",
+                    "example": 82.7
+                },
+                "month": {
+                    "type": "string",
+                    "example": "2024-06"
+                }
+            }
+        },
         "models.Role": {
             "description": "角色定义，例如 \"admin\"",
             "type": "object",
@@ -1916,6 +1865,23 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "integer",
                     "example": 1716940800
+                }
+            }
+        },
+        "models.RoleDoc": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "管理员"
                 }
             }
         },
@@ -1970,6 +1936,52 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ScoreDoc": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
+                "exam_date": {
+                    "type": "string",
+                    "example": "2025-05-01"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "score": {
+                    "type": "number",
+                    "example": 89.5
+                },
+                "student_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.ScoreRankRow": {
+            "type": "object",
+            "properties": {
+                "avg_score": {
+                    "type": "number",
+                    "example": 87.5
+                },
+                "student_name": {
+                    "type": "string",
+                    "example": "张三"
+                }
+            }
+        },
         "models.Student": {
             "type": "object",
             "properties": {
@@ -1977,9 +1989,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2005-09-01"
                 },
-                "class_name": {
-                    "type": "string",
-                    "example": "高一1班"
+                "class": {
+                    "description": "自动加载关联班级",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Class"
+                        }
+                    ]
+                },
+                "class_id": {
+                    "description": "外键字段",
+                    "type": "integer"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2007,34 +2027,73 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
+        "models.StudentDoc": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
+                "birth_date": {
+                    "type": "string",
+                    "example": "2005-09-01"
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                "class_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "男"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "张三"
+                },
+                "student_no": {
+                    "type": "string",
+                    "example": "20230001"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.UserDoc": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "is_active": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "nickname": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "管理员"
                 },
                 "password": {
-                    "description": "✅ 添加 type:varchar(255)",
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 },
-                "updatedAt": {
-                    "type": "string"
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T12:00:00Z"
                 },
                 "username": {
-                    "description": "✅ 添加 type:varchar(255)",
-                    "type": "string"
+                    "type": "string",
+                    "example": "admin"
                 }
             }
         },
@@ -2061,7 +2120,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.1",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},

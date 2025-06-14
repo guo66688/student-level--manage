@@ -15,7 +15,6 @@ import (
 // @Tags permission
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/permissions [get]
 // 获取所有权限
@@ -33,7 +32,7 @@ func GetPermissions(c *gin.Context) {
 // @Tags permission
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.Permission true "权限信息" example({"name": "course:view", "desc": "查看课程"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/permissions [post]
 // 添加权限
@@ -55,8 +54,7 @@ func AddPermission(c *gin.Context) {
 // @Tags permission
 // @Accept json
 // @Produce json
-// @Param id path int true "权限ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "权限ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/permissions/{id} [delete]
 // 删除权限
@@ -74,7 +72,7 @@ func DeletePermission(c *gin.Context) {
 // @Tags permission
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body object true "请求参数" example({"role_id": 2, "permission_ids": [1, 2, 3]})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/role/permissions [post]
 // 设置角色权限

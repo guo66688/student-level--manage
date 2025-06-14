@@ -18,9 +18,9 @@ import (
 // @Tags charts
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param type query string false "图表类型（可选）" example("score-trend")
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts [get]
+// @Router /charts [get]
 // 图表列表接口（支持按类型筛选）
 func ListCharts(c *gin.Context) {
 	typeParam := c.Query("type")
@@ -51,9 +51,9 @@ func ListCharts(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.ChartData true "图表数据" example({"type":"score-trend","meta":{"title":"成绩趋势"},"values":[{"x":"2024-01","y":85.3}]})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts [post]
+// @Router /charts [post]
 // 图表新增接口
 func AddChart(c *gin.Context) {
 	var chart models.ChartData
@@ -77,10 +77,10 @@ func AddChart(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
-// @Param id path string true "图表ID"
-// @Param data body object true "请求参数"
+// @Param id path string true "图表ID" example("60f7d2f5e13f1e3c48a2a1a2")
+// @Param data body models.ChartData true "图表数据" example({"type":"pass-rate","meta":{"title":"通过率"},"values":[{"x":"课程1","y":92.5}]})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts/{id} [put]
+// @Router /charts/{id} [put]
 // 图表编辑接口（根据 ID 更新）
 func UpdateChart(c *gin.Context) {
 	id := c.Param("id")
@@ -118,10 +118,9 @@ func UpdateChart(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
-// @Param id path string true "图表ID"
-// @Param data body object true "请求参数"
+// @Param id path string true "图表ID" example("60f7d2f5e13f1e3c48a2a1a2")
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts/{id} [delete]
+// @Router /charts/{id} [delete]
 // 删除图表接口
 func DeleteChart(c *gin.Context) {
 	idStr := c.Param("id")

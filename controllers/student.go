@@ -17,7 +17,7 @@ import (
 // @Tags students
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.Student true "学生信息" example({"name": "张三", "age": 20, "class_name": "软件一班"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students [post]
 func AddStudent(c *gin.Context) {
@@ -38,7 +38,6 @@ func AddStudent(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students [get]
 func GetStudents(c *gin.Context) {
@@ -55,8 +54,8 @@ func GetStudents(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
-// @Param id path int true "学生ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "学生ID" example(1)
+// @Param data body models.Student true "学生信息" example({"name": "李四", "age": 21, "class_name": "软件二班"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students/{id} [put]
 func UpdateStudent(c *gin.Context) {
@@ -79,8 +78,7 @@ func UpdateStudent(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
-// @Param id path int true "学生ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "学生ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students/{id} [delete]
 func DeleteStudent(c *gin.Context) {
@@ -97,7 +95,7 @@ func DeleteStudent(c *gin.Context) {
 // @Tags students
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param name query string true "班级名称" example("软件一班")
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/students/by_class [get]
 func GetStudentsByClass(c *gin.Context) {

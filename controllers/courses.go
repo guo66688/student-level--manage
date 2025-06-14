@@ -13,12 +13,16 @@ import (
 
 // AddCourse godoc
 // @Summary 添加课程
+// @Description 新增一个课程记录
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
+// @Param data body models.Course true "课程信息" example({"course_name": "高等数学", "course_code": "MATH101", "credit": 3})
+// @Success 200 {object} map[string]interface{} "返回添加的课程"
+// @Failure 400 {object} map[string]string "参数错误"
+// @Failure 500 {object} map[string]string "数据库写入失败"
 // @Router /api/courses [post]
+
 func AddCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
@@ -43,13 +47,17 @@ func AddCourse(c *gin.Context) {
 
 // GetCourses godoc
 // @Summary 获取课程列表
+// @Description 分页获取课程信息
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param page query int false "页码" default(1)
-// @Param size query int false "每页条数" default(10)
-// @Success 200 {object} map[string]interface{} "返回信息"
+// @Param page query int false "页码" default(1) example(1)
+// @Param size query int false "每页条数" default(10) example(10)
+// @Success 200 {object} map[string]interface{} "包含课程列表和总数"
+// @Failure 400 {object} map[string]string "分页参数错误"
+// @Failure 500 {object} map[string]string "查询失败"
 // @Router /api/courses [get]
+
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
 	var total int64
@@ -89,16 +97,19 @@ func GetCourses(c *gin.Context) {
 	})
 }
 
+// UpdateCourse godoc
 // @Summary 更新课程
+// @Description 根据 ID 更新课程信息
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param id path int true "课程ID"
-// @Param course body models.Course true "课程信息"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Param id path int true "课程ID" example(101)
+// @Param course body models.Course true "课程信息" example({"course_name": "线性代数", "course_code": "MATH102", "credit": 3})
+// @Success 200 {object} map[string]interface{} "更新后的课程信息"
+// @Failure 400 {object} map[string]string "参数错误"
+// @Failure 404 {object} map[string]string "未找到课程"
 // @Router /api/courses/{id} [put]
+
 func UpdateCourse(c *gin.Context) {
 	id := c.Param("id")
 	var course models.Course
@@ -114,12 +125,16 @@ func UpdateCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "更新成功", "course": course})
 }
 
+// DeleteCourse godoc
 // @Summary 删除课程
+// @Description 删除指定 ID 的课程
 // @Tags courses
-// @Param id path int true "课程ID"
-// @Success 200 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Produce json
+// @Param id path int true "课程ID" example(101)
+// @Success 200 {object} map[string]string "删除成功"
+// @Failure 500 {object} map[string]string "删除失败"
 // @Router /api/courses/{id} [delete]
+
 func DeleteCourse(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Course{}, id).Error; err != nil {

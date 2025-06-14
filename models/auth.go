@@ -1,3 +1,4 @@
+// models\auth.go
 package models
 
 // LoginRequest 登录请求体

@@ -15,23 +15,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type CourseStats struct {
-	CourseID uint    `json:"course_id"`
-	AvgScore float64 `json:"avg_score"`
-	MaxScore float64 `json:"max_score"`
-	MinScore float64 `json:"min_score"`
-}
-
 // GetCourseStats godoc
 // @Summary 获取课程统计
+// @Description 获取每门课程的平均、最高和最低成绩
 // @Tags analytics
-// @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/analytics/course-stats [get]
+// @Success 200 {array} models.CourseStats "课程统计列表"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /analytics/course-stats [get]
 func GetCourseStats(c *gin.Context) {
-	var stats []CourseStats
+	var stats []models.CourseStats
 	query := `
 		SELECT 
 			course_id,
@@ -51,16 +44,15 @@ func GetCourseStats(c *gin.Context) {
 
 // GetMonthlyStats godoc
 // @Summary 获取月度平均成绩趋势
+// @Description 获取每月平均成绩的时间序列数据
 // @Tags analytics
 // @Produce json
-// @Router /api/analysis/monthly [get]
+// @Success 200 {array} models.Result "月度平均成绩列表"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /analysis/monthly [get]
 func GetMonthlyStats(c *gin.Context) {
-	type Result struct {
-		Month string  `json:"month"`
-		Avg   float64 `json:"avg"`
-	}
 
-	var results []Result
+	var results []models.Result
 	err := config.DB.
 		Raw(`
 			SELECT
@@ -80,12 +72,13 @@ func GetMonthlyStats(c *gin.Context) {
 
 // GetPassRate godoc
 // @Summary 获取课程通过率分析
+// @Description 可选传入 course_id 获取单个课程，否则返回所有课程通过率
 // @Tags analytics
-// @Accept json
 // @Produce json
-// @Param course_id query int false "课程 ID，不传则返回所有课程"
-// @Success 200 {array} map[string]interface{} "返回信息"
-// @Router /api/analysis/pass_rate [get]
+// @Param course_id query int false "课程 ID（可选，单个课程）" example(1001)
+// @Success 200 {array} models.Pass "通过率列表或单个课程分析"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /analysis/pass_rate [get]
 func GetPassRate(c *gin.Context) {
 	// 如果传了 course_id，则只计算单个课程
 	if courseID := c.Query("course_id"); courseID != "" {
@@ -111,14 +104,7 @@ func GetPassRate(c *gin.Context) {
 		return
 	}
 
-	// 不带参数时，统计所有课程
-	type Pass struct {
-		CourseID uint    `json:"course_id"`
-		Passed   int64   `json:"passed"`
-		Total    int64   `json:"total"`
-		Rate     float64 `json:"rate"`
-	}
-	var stats []Pass
+	var stats []models.Pass
 
 	// 先拿到所有课程 ID
 	var courseIDs []uint
@@ -139,7 +125,7 @@ func GetPassRate(c *gin.Context) {
 			rate = float64(passed) / float64(total) * 100
 		}
 
-		stats = append(stats, Pass{
+		stats = append(stats, models.Pass{
 			CourseID: cid,
 			Passed:   passed,
 			Total:    total,
@@ -152,9 +138,14 @@ func GetPassRate(c *gin.Context) {
 
 // GetScoreRanking godoc
 // @Summary 获取成绩排行榜（含姓名）
+// @Description 获取学生按平均成绩排名的前10名
 // @Tags analytics
 // @Produce json
-// @Router /api/analysis/rank [get]
+// @Param offset query int false "起始位置（默认0）" example(0)
+// @Param limit query int false "返回数量（默认10）" example(10)
+// @Success 200 {array} models.ScoreRankRow "学生平均成绩排行榜"
+// @Failure 500 {object} map[string]string "数据库查询失败"
+// @Router /analysis/rank [get]
 func GetScoreRanking(c *gin.Context) {
 	// 分页参数
 	start, limit := 0, 10
@@ -166,12 +157,7 @@ func GetScoreRanking(c *gin.Context) {
 	}
 	end := start + limit - 1
 
-	// 直接连表查姓名 + 平均分
-	type Row struct {
-		StudentName string  `json:"student_name"`
-		AvgScore    float64 `json:"avg_score"`
-	}
-	var all []Row
+	var all []models.ScoreRankRow
 	err := config.DB.
 		Table("scores AS sc").
 		Select("st.name AS student_name, AVG(sc.score) AS avg_score").
@@ -186,9 +172,10 @@ func GetScoreRanking(c *gin.Context) {
 
 	// 分页返回
 	if start > len(all)-1 {
-		c.JSON(http.StatusOK, []Row{})
+		c.JSON(http.StatusOK, []models.ScoreRankRow{})
 		return
 	}
+
 	if end >= len(all) {
 		end = len(all) - 1
 	}
@@ -207,9 +194,9 @@ func min(a, b int) int {
 // @Tags analytics
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/analysis/rank/cache [delete]
+// @Success 200 {object} map[string]string "清除结果"
+// @Failure 500 {object} map[string]string "清除失败"
+// @Router /analysis/rank/cache [delete]
 func ClearScoreRankingCache(c *gin.Context) {
 	err := config.Redis.Del(config.Ctx, "score:rank").Err()
 	if err != nil {
@@ -222,11 +209,12 @@ func ClearScoreRankingCache(c *gin.Context) {
 // GetChartFromMongo godoc
 // @Summary 获取图表数据
 // @Tags charts
-// @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts/data [get]
+// @Param type query string true "图表类型" example("score-trend")
+// @Success 200 {object} object "图表数据内容"
+// @Failure 400 {object} map[string]string "缺少参数"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /charts/data [get]
 func GetChartFromMongo(c *gin.Context) {
 	chartType := c.Query("type")
 	if chartType == "" {
@@ -244,11 +232,10 @@ func GetChartFromMongo(c *gin.Context) {
 // GetChartTypes godoc
 // @Summary 图表类型列表
 // @Tags charts
-// @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts/types [get]
+// @Success 200 {array} string "图表类型集合"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /charts/types [get]
 func GetChartTypes(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -275,11 +262,12 @@ func GetChartTypes(c *gin.Context) {
 // DeleteChartData godoc
 // @Summary 删除图表数据
 // @Tags charts
-// @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
-// @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/charts/data [delete]
+// @Param type query string true "图表类型" example("pass-rate")
+// @Success 200 {object} map[string]interface{} "删除结果"
+// @Failure 400 {object} map[string]string "参数缺失"
+// @Failure 500 {object} map[string]string "删除失败"
+// @Router /charts/data [delete]
 func DeleteChartData(c *gin.Context) {
 	chartType := c.Query("type")
 	if chartType == "" {
@@ -305,10 +293,11 @@ func DeleteChartData(c *gin.Context) {
 
 // GetDashboardStats godoc
 // @Summary 仪表盘统计数据
+// @Description 包括学生数、课程数、班级数、平均成绩
 // @Tags analytics
 // @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router /api/dashboard/stats [get]
+// @Success 200 {object} map[string]interface{} "统计数据"
+// @Router /dashboard/stats [get]
 func GetDashboardStats(c *gin.Context) {
 	var studentsCount int64
 	var coursesCount int64
@@ -331,4 +320,28 @@ func GetDashboardStats(c *gin.Context) {
 		"classes":  classesCount,
 		"avgScore": avgScore,
 	})
+}
+
+
+// GetExamCount godoc
+// @Summary 获取考试总次数
+// @Description 按 course_id 和 exam_date 去重统计考试次数（即课程+考试日视为一次考试）
+// @Tags analytics
+// @Produce json
+// @Success 200 {object} map[string]int "格式: { \"total\": 23 }"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /analysis/exam_count [get]
+func GetExamCount(c *gin.Context) {
+	var count int64
+	err := config.DB.
+		Model(&models.Score{}).
+		Select("COUNT(DISTINCT course_id, exam_date)").
+		Count(&count).Error
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "查询失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"total": count})
 }

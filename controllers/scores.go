@@ -18,7 +18,7 @@ import (
 // @Tags scores
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.Score true "成绩信息" example({"student_id": 1, "course_id": 101, "score": 85, "exam_date": "2024-06-01"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores [post]
 func AddScore(c *gin.Context) {
@@ -79,7 +79,6 @@ func AddScore(c *gin.Context) {
 // @Tags scores
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores [get]
 func GetScores(c *gin.Context) {
@@ -96,8 +95,8 @@ func GetScores(c *gin.Context) {
 // @Tags scores
 // @Accept json
 // @Produce json
-// @Param id path int true "成绩ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "成绩ID" example(1)
+// @Param data body models.Score true "成绩信息" example({"student_id": 1, "course_id": 101, "score": 90, "exam_date": "2024-06-01"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores/{id} [put]
 func UpdateScore(c *gin.Context) {
@@ -120,8 +119,7 @@ func UpdateScore(c *gin.Context) {
 // @Tags scores
 // @Accept json
 // @Produce json
-// @Param id path int true "成绩ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "成绩ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/scores/{id} [delete]
 func DeleteScore(c *gin.Context) {

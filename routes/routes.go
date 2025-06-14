@@ -76,9 +76,10 @@ func InitRouter() *gin.Engine {
 			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
 			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
+			auth.GET("/api/analysis/exam_count", controllers.GetExamCount)
+			auth.GET("/dashboard/stats", controllers.GetDashboardStats)
 			auth.GET("/analysis/rank", controllers.GetScoreRanking)
 			auth.DELETE("/analysis/rank/cache", controllers.ClearScoreRankingCache)
-			auth.GET("/dashboard/stats", controllers.GetDashboardStats)
 
 			// ✅ 图表管理（MongoDB）
 			charts := auth.Group("/charts")

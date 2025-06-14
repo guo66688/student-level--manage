@@ -1,5 +1,5 @@
 // @title 学生成绩管理系统 API
-// @version 1.0
+// @version 1.1
 // @description 用于管理学生、课程、成绩和图表数据的后台 API。
 // @contact.name icoffee
 // @contact.email 1596740959@qq.com

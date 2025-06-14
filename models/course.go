@@ -1,3 +1,4 @@
+// models\course.go
 package models
 
 import "gorm.io/gorm"

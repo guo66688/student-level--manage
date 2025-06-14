@@ -14,7 +14,6 @@ import (
 // @Tags role
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/roles [get]
 // 获取角色列表
@@ -32,7 +31,7 @@ func GetRoles(c *gin.Context) {
 // @Tags role
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.Role true "角色信息" example({"name": "管理员"})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/roles [post]
 // 添加角色
@@ -54,8 +53,7 @@ func AddRole(c *gin.Context) {
 // @Tags role
 // @Accept json
 // @Produce json
-// @Param id path int true "角色ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "角色ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/roles/{id} [delete]
 // 删除角色
@@ -68,9 +66,10 @@ func DeleteRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "删除成功"})
 }
 
+// GetPermissionsByRole godoc
 // @Summary 获取角色的权限ID列表
-// @Tags 权限管理
-// @Param role_id query int true "角色ID"
+// @Tags role
+// @Param role_id query int true "角色ID" example(2)
 // @Produce json
 // @Success 200 {array} uint
 // @Failure 400 {object} map[string]string

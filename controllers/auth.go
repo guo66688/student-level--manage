@@ -20,10 +20,10 @@ import (
 // @Tags 用户认证
 // @Accept json
 // @Produce json
-// @Param login body models.LoginRequest true "登录请求"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Param login body models.LoginRequest true "登录请求" example({"username": "admin", "password": "123456"})
+// @Success 200 {object} map[string]interface{} "返回 token 信息"
+// @Failure 400 {object} map[string]string "参数错误"
+// @Failure 401 {object} map[string]string "用户名或密码错误"
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
 	var req models.LoginRequest

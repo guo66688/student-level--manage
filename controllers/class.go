@@ -16,7 +16,6 @@ import (
 // @Tags classes
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes [get]
 // 查询所有班级（带 Redis 缓存）
@@ -57,7 +56,7 @@ func invalidateClassCache() {
 // @Tags classes
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body models.Class true "班级信息" example({"name": "软件一班", "grade": 2023})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes [post]
 func AddClass(c *gin.Context) {
@@ -79,8 +78,8 @@ func AddClass(c *gin.Context) {
 // @Tags classes
 // @Accept json
 // @Produce json
-// @Param id path int true "班级ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "班级ID" example(1)
+// @Param data body models.Class true "班级信息" example({"name": "软件二班", "grade": 2023})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes/{id} [put]
 func UpdateClass(c *gin.Context) {
@@ -107,8 +106,7 @@ func UpdateClass(c *gin.Context) {
 // @Tags classes
 // @Accept json
 // @Produce json
-// @Param id path int true "班级ID"
-// @Param data body object true "请求参数"
+// @Param id path int true "班级ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/classes/{id} [delete]
 func DeleteClass(c *gin.Context) {

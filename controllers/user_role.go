@@ -15,7 +15,7 @@ import (
 // @Tags user_role
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param data body object true "请求参数" example({"user_id": 1, "role_id": 2})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/user/role [post]
 // 设置用户角色
@@ -50,7 +50,7 @@ func SetUserRole(c *gin.Context) {
 // @Tags user_role
 // @Accept json
 // @Produce json
-// @Param data body object true "请求参数"
+// @Param user_id query int true "用户ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /api/user/role [get]
 // 查询用户的角色 ID
