@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Param data body models.Student true "学生信息" example({"name": "张三", "age": 20, "class_name": "软件一班"})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/students [post]
+// @Router /students [post]
 func AddStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
@@ -61,7 +61,7 @@ func AddStudent(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "包含学生列表和总数"
 // @Failure 400 {object} map[string]string "分页参数错误"
 // @Failure 500 {object} map[string]string "查询失败"
-// @Router /api/students [get]
+// @Router /students [get]
 func GetStudents(c *gin.Context) {
 	var students []models.Student
 	var total int64

@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Param data body object true "请求参数" example({"user_id": 1, "role_id": 2})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/user/role [post]
+// @Router /user/role [post]
 // 设置用户角色
 func SetUserRole(c *gin.Context) {
 	var req struct {
@@ -52,7 +52,7 @@ func SetUserRole(c *gin.Context) {
 // @Produce json
 // @Param user_id query int true "用户ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/user/role [get]
+// @Router /user/role [get]
 // 查询用户的角色 ID
 func GetUserRole(c *gin.Context) {
 	userID := c.Query("user_id")

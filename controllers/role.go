@@ -15,7 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/roles [get]
+// @Router /roles [get]
 // 获取角色列表
 func GetRoles(c *gin.Context) {
 	var roles []models.Role
@@ -33,7 +33,7 @@ func GetRoles(c *gin.Context) {
 // @Produce json
 // @Param data body models.Role true "角色信息" example({"name": "管理员"})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/roles [post]
+// @Router /roles [post]
 // 添加角色
 func AddRole(c *gin.Context) {
 	var role models.Role
@@ -55,7 +55,7 @@ func AddRole(c *gin.Context) {
 // @Produce json
 // @Param id path int true "角色ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/roles/{id} [delete]
+// @Router /roles/{id} [delete]
 // 删除角色
 func DeleteRole(c *gin.Context) {
 	id := c.Param("id")
@@ -74,7 +74,7 @@ func DeleteRole(c *gin.Context) {
 // @Success 200 {array} uint
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /api/role/permission_ids [get]
+// @Router /role/permission_ids [get]
 // 获取某个角色绑定的权限 ID 列表
 func GetPermissionsByRole(c *gin.Context) {
 	roleID := c.Query("role_id")

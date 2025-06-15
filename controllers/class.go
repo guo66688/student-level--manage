@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/classes [get]
+// @Router /classes [get]
 // 查询所有班级（带 Redis 缓存）
 func GetClasses(c *gin.Context) {
 	const cacheKey = "class:list"
@@ -58,7 +58,7 @@ func invalidateClassCache() {
 // @Produce json
 // @Param data body models.Class true "班级信息" example({"name": "软件一班", "grade": 2023})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/classes [post]
+// @Router /classes [post]
 func AddClass(c *gin.Context) {
 	var class models.Class
 	if err := c.ShouldBindJSON(&class); err != nil {
@@ -81,7 +81,7 @@ func AddClass(c *gin.Context) {
 // @Param id path int true "班级ID" example(1)
 // @Param data body models.Class true "班级信息" example({"name": "软件二班", "grade": 2023})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/classes/{id} [put]
+// @Router /classes/{id} [put]
 func UpdateClass(c *gin.Context) {
 	id := c.Param("id")
 	var class models.Class
@@ -108,7 +108,7 @@ func UpdateClass(c *gin.Context) {
 // @Produce json
 // @Param id path int true "班级ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/classes/{id} [delete]
+// @Router /classes/{id} [delete]
 func DeleteClass(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Class{}, id).Error; err != nil {

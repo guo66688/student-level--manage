@@ -16,7 +16,7 @@ import (
 // @Produce json
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/users [get]
+// @Router /users [get]
 // 用户列表（支持分页与关键词）
 func ListUsers(c *gin.Context) {
 	var users []models.User
@@ -50,7 +50,7 @@ func ListUsers(c *gin.Context) {
 // @Produce json
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/users [post]
+// @Router /users [post]
 // 添加用户
 func AddUser(c *gin.Context) {
 	var user models.User
@@ -77,7 +77,7 @@ func AddUser(c *gin.Context) {
 // @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/users/{id} [put]
+// @Router /users/{id} [put]
 // 更新用户基本信息
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
@@ -102,7 +102,7 @@ func UpdateUser(c *gin.Context) {
 // @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/users/{id} [delete]
+// @Router /users/{id} [delete]
 // 删除用户
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
@@ -121,7 +121,7 @@ func DeleteUser(c *gin.Context) {
 // @Param id path int true "用户ID"
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/users/{id}/reset_password [put]
+// @Router /users/{id}/reset_password [put]
 // 重置密码
 func ResetPassword(c *gin.Context) {
 	id := c.Param("id")
@@ -146,7 +146,7 @@ func ResetPassword(c *gin.Context) {
 // @Produce json
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/user/permissions [get]
+// @Router /user/permissions [get]
 func GetUserPermissions(c *gin.Context) {
 	userAny, exists := c.Get("user")
 	if !exists {
@@ -190,7 +190,7 @@ func GetUserPermissions(c *gin.Context) {
 // @Produce json
 // @Param data body object true "请求参数"
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/user/roles [get]
+// @Router /user/roles [get]
 func GetUserRoles(c *gin.Context) {
 	userAny, exists := c.Get("user")
 	if !exists {

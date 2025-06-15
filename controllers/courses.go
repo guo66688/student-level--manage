@@ -21,7 +21,7 @@ import (
 // @Success 200 {object} map[string]interface{} "返回添加的课程"
 // @Failure 400 {object} map[string]string "参数错误"
 // @Failure 500 {object} map[string]string "数据库写入失败"
-// @Router /api/courses [post]
+// @Router /courses [post]
 func AddCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
@@ -56,7 +56,7 @@ func AddCourse(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "包含课程列表和总数"
 // @Failure 400 {object} map[string]string "分页参数错误"
 // @Failure 500 {object} map[string]string "查询失败"
-// @Router /api/courses [get]
+// @Router /courses [get]
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
 	var total int64
@@ -110,7 +110,7 @@ func GetCourses(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "更新后的课程信息"
 // @Failure 400 {object} map[string]string "参数错误"
 // @Failure 404 {object} map[string]string "未找到课程"
-// @Router /api/courses/{id} [put]
+// @Router /courses/{id} [put]
 func UpdateCourse(c *gin.Context) {
 	id := c.Param("id")
 	var course models.Course
@@ -134,7 +134,7 @@ func UpdateCourse(c *gin.Context) {
 // @Param id path int true "课程ID" example(101)
 // @Success 200 {object} map[string]string "删除成功"
 // @Failure 500 {object} map[string]string "删除失败"
-// @Router /api/courses/{id} [delete]
+// @Router /courses/{id} [delete]
 func DeleteCourse(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Course{}, id).Error; err != nil {

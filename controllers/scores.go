@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Param data body models.Score true "成绩信息" example({"student_id": 1, "course_id": 101, "score": 85, "exam_date": "2024-06-01"})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/scores [post]
+// @Router /scores [post]
 func AddScore(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -80,7 +80,7 @@ func AddScore(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/scores [get]
+// @Router /scores [get]
 func GetScores(c *gin.Context) {
 	var scores []models.Score
 	if err := config.DB.Find(&scores).Error; err != nil {
@@ -98,7 +98,7 @@ func GetScores(c *gin.Context) {
 // @Param id path int true "成绩ID" example(1)
 // @Param data body models.Score true "成绩信息" example({"student_id": 1, "course_id": 101, "score": 90, "exam_date": "2024-06-01"})
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/scores/{id} [put]
+// @Router /scores/{id} [put]
 func UpdateScore(c *gin.Context) {
 	id := c.Param("id")
 	var score models.Score
@@ -121,7 +121,7 @@ func UpdateScore(c *gin.Context) {
 // @Produce json
 // @Param id path int true "成绩ID" example(1)
 // @Success 200 {object} map[string]interface{} "返回信息"
-// @Router /api/scores/{id} [delete]
+// @Router /scores/{id} [delete]
 func DeleteScore(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Score{}, id).Error; err != nil {
