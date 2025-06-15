@@ -22,7 +22,6 @@ import (
 // @Failure 400 {object} map[string]string "参数错误"
 // @Failure 500 {object} map[string]string "数据库写入失败"
 // @Router /api/courses [post]
-
 func AddCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
@@ -47,17 +46,17 @@ func AddCourse(c *gin.Context) {
 
 // GetCourses godoc
 // @Summary 获取课程列表
-// @Description 分页获取课程信息
+// @Description 分页获取课程信息，并支持课程名称过滤
 // @Tags courses
 // @Accept json
 // @Produce json
 // @Param page query int false "页码" default(1) example(1)
 // @Param size query int false "每页条数" default(10) example(10)
+// @Param query query string false "搜索关键词" example("高等数学")
 // @Success 200 {object} map[string]interface{} "包含课程列表和总数"
 // @Failure 400 {object} map[string]string "分页参数错误"
 // @Failure 500 {object} map[string]string "查询失败"
 // @Router /api/courses [get]
-
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
 	var total int64
@@ -65,6 +64,7 @@ func GetCourses(c *gin.Context) {
 	// 获取分页参数
 	page := c.DefaultQuery("page", "1")  // 获取页码，默认是第1页
 	size := c.DefaultQuery("size", "10") // 获取每页的条数，默认10
+	query := c.DefaultQuery("query", "") // 获取查询参数，默认空字符串
 
 	// 将字符串转换为整数
 	pageInt, err := strconv.Atoi(page)
@@ -78,14 +78,15 @@ func GetCourses(c *gin.Context) {
 		return
 	}
 
-	// 获取课程总数
-	if err := config.DB.Model(&models.Course{}).Count(&total).Error; err != nil {
+	// 获取课程总数（支持查询条件）
+	queryCondition := "%" + query + "%" // 用于模糊查询
+	if err := config.DB.Model(&models.Course{}).Where("course_name LIKE ?", queryCondition).Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
 
-	// 查询课程数据（分页）
-	if err := config.DB.Offset((pageInt - 1) * sizeInt).Limit(sizeInt).Find(&courses).Error; err != nil {
+	// 查询课程数据（分页和过滤）
+	if err := config.DB.Offset((pageInt - 1) * sizeInt).Limit(sizeInt).Where("course_name LIKE ?", queryCondition).Find(&courses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
@@ -96,6 +97,7 @@ func GetCourses(c *gin.Context) {
 		"total": total,
 	})
 }
+
 
 // UpdateCourse godoc
 // @Summary 更新课程
@@ -109,7 +111,6 @@ func GetCourses(c *gin.Context) {
 // @Failure 400 {object} map[string]string "参数错误"
 // @Failure 404 {object} map[string]string "未找到课程"
 // @Router /api/courses/{id} [put]
-
 func UpdateCourse(c *gin.Context) {
 	id := c.Param("id")
 	var course models.Course
@@ -134,7 +135,6 @@ func UpdateCourse(c *gin.Context) {
 // @Success 200 {object} map[string]string "删除成功"
 // @Failure 500 {object} map[string]string "删除失败"
 // @Router /api/courses/{id} [delete]
-
 func DeleteCourse(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Course{}, id).Error; err != nil {
