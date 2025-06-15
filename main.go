@@ -68,5 +68,7 @@ func main() {
 	// ✅ 注册 Swagger 接口文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.Run(":8080")
+	r.Run("0.0.0.0:8080")
+	log.Println("🔥 Air Reload Test")
+
 }

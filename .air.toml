@@ -1,0 +1,14 @@
+# .air.toml —— Linux / WSL
+[build]
+cmd       = "go build -o ./tmp/main ."
+bin       = "./tmp/main"
+full_bin  = "./tmp/main"
+delay     = 1000
+stop_on_error = true
+log       = "build.log"
+debug = true
+
+[watch]
+dirs = ["."]
+exclude_dir = ["assets", "vendor", "tmp", "node_modules"]
+include_ext = ["go"]

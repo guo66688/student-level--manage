@@ -28,3 +28,9 @@ type ScoreRankRow struct {
 	StudentName string  `json:"student_name" example:"张三"`
 	AvgScore    float64 `json:"avg_score" example:"87.5"`
 }
+
+// ClassAvgDoc 用于 Swagger 展示班级平均成绩结构
+type ClassAvgDoc struct {
+	ClassName string  `json:"class_name" example:"高一1班"`
+	AvgScore  float64 `json:"avg_score" example:"85.2"`
+}

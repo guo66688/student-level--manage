@@ -4,7 +4,7 @@ package controllers
 import (
 	"net/http"
 	"time"
-
+	"log"
 	"student-level-manage/config"
 	"student-level-manage/middleware"
 	"student-level-manage/models"
@@ -28,29 +28,29 @@ import (
 func Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
+		log.Println("❌ JSON 解析失败:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误", "detail": err.Error()})
 		return
 	}
 
-	// 1）先按用户名查询用户
 	var user models.User
 	if err := config.DB.
 		Where("username = ?", req.Username).
 		First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
+		log.Println("❌ 用户查询失败:", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误", "detail": err.Error()})
 		return
 	}
 
-	// 2）用 bcrypt 校验前端传来的明文密码 vs 数据库里的哈希
 	if err := bcrypt.CompareHashAndPassword(
 		[]byte(user.Password),
 		[]byte(req.Password),
 	); err != nil {
+		log.Println("❌ 密码校验失败:", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
 		return
 	}
 
-	// 3）密码校验通过，签发 JWT
 	exp := time.Now().Add(24 * time.Hour)
 	claims := &middleware.Claims{
 		UserID: user.ID,
@@ -59,9 +59,13 @@ func Login(c *gin.Context) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenStr, _ := token.SignedString(middleware.JwtKey)
+	tokenStr, err := token.SignedString(middleware.JwtKey)
+	if err != nil {
+		log.Println("❌ Token 生成失败:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "Token 签发失败", "detail": err.Error()})
+		return
+	}
 
-	// （可选）设置 Cookie
 	c.SetCookie("token", tokenStr, 3600*24, "/", "localhost", false, true)
 
 	c.JSON(http.StatusOK, gin.H{

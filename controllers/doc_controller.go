@@ -1,3 +1,4 @@
+// controllers\doc_controller.go
 package controllers
 
 import (
@@ -36,4 +37,5 @@ type docModels struct {
 	Result         models.Result         `json:"result"`
 	Pass           models.Pass           `json:"pass"`
 	ScoreRankRow   models.ScoreRankRow   `json:"score_rank"`
+	ClassAvg models.ClassAvgDoc `json:"class_avg"`
 }

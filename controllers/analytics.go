@@ -345,3 +345,37 @@ func GetExamCount(c *gin.Context) {
 
 	c.JSON(200, gin.H{"total": count})
 }
+
+
+// GetClassAvgScore godoc
+// @Summary 获取班级平均成绩
+// @Description 获取每个班级的平均成绩，用于图表展示
+// @Tags analytics
+// @Produce json
+// @Success 200 {array} models.ClassAvgDoc "班级平均成绩数组"
+// @Failure 500 {object} map[string]string "数据库查询失败"
+// @Router /analysis/class_avg [get]
+func GetClassAvgScore(c *gin.Context) {
+	type Result struct {
+		ClassName string  `json:"class_name"`
+		AvgScore  float64 `json:"avg_score"`
+	}
+
+	var results []Result
+
+	err := config.DB.
+		Table("scores").
+		Select("classes.name AS class_name, AVG(scores.score) AS avg_score").
+		Joins("JOIN students ON scores.student_id = students.id").
+		Joins("JOIN classes ON students.class_id = classes.id").
+		Group("classes.name").
+		Scan(&results).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "数据库查询失败"})
+		return
+	}
+	c.JSON(http.StatusOK, results)
+}
+
+

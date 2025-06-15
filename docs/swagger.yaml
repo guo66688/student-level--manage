@@ -6,6 +6,8 @@ definitions:
         $ref: '#/definitions/models.ChartData'
       class:
         $ref: '#/definitions/models.ClassDoc'
+      class_avg:
+        $ref: '#/definitions/models.ClassAvgDoc'
       course:
         $ref: '#/definitions/models.CourseDoc'
       course_stats:
@@ -37,14 +39,6 @@ definitions:
       user_role:
         $ref: '#/definitions/models.UserRole'
     type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
-    type: object
   models.ChartData:
     properties:
       id:
@@ -58,20 +52,14 @@ definitions:
       values: {}
     type: object
   models.Class:
+    type: object
+  models.ClassAvgDoc:
     properties:
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      name:
-        type: string
-      students:
-        items:
-          $ref: '#/definitions/models.Student'
-        type: array
-      updatedAt:
+      avg_score:
+        example: 85.2
+        type: number
+      class_name:
+        example: 高一1班
         type: string
     type: object
   models.ClassDoc:
@@ -241,27 +229,6 @@ definitions:
         type: integer
     type: object
   models.Score:
-    properties:
-      course_id:
-        example: 101
-        type: integer
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      exam_date:
-        example: "2025-05-01"
-        type: string
-      id:
-        type: integer
-      score:
-        example: 89.5
-        type: number
-      student_id:
-        example: 1
-        type: integer
-      updatedAt:
-        type: string
     type: object
   models.ScoreDoc:
     properties:
@@ -297,34 +264,6 @@ definitions:
         type: string
     type: object
   models.Student:
-    properties:
-      birth_date:
-        example: "2005-09-01"
-        type: string
-      class:
-        allOf:
-        - $ref: '#/definitions/models.Class'
-        description: 自动加载关联班级
-      class_id:
-        description: 外键字段
-        type: integer
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      gender:
-        example: 男
-        type: string
-      id:
-        type: integer
-      name:
-        example: 张三
-        type: string
-      student_no:
-        example: "20230001"
-        type: string
-      updatedAt:
-        type: string
     type: object
   models.StudentDoc:
     properties:
@@ -399,6 +338,48 @@ info:
   title: 学生成绩管理系统 API
   version: "1.1"
 paths:
+  /analysis/class_avg:
+    get:
+      description: 获取每个班级的平均成绩，用于图表展示
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 班级平均成绩数组
+          schema:
+            items:
+              $ref: '#/definitions/models.ClassAvgDoc'
+            type: array
+        "500":
+          description: 数据库查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取班级平均成绩
+      tags:
+      - analytics
+  /analysis/exam_count:
+    get:
+      description: 按 course_id 和 exam_date 去重统计考试次数（即课程+考试日视为一次考试）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '格式: { \"total\": 23 }'
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取考试总次数
+      tags:
+      - analytics
   /analysis/monthly:
     get:
       description: 获取每月平均成绩的时间序列数据

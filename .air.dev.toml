@@ -1,0 +1,32 @@
+# .air.dev.toml
+
+[build]
+# ——编译指令——
+# 这里把 go build 全写成一个字符串，Air 会在 shell 下执行它
+cmd         = "go build -o tmp\\main.exe ."
+
+# 指向生成的可执行文件，Air 会自己用 cmd /C start /WAIT /B 去跑它
+bin         = "tmp\\main.exe"
+
+# （可选）你不需要给启动命令加额外参数的话，可以把 full_bin 留空或干脆删掉
+#full_bin    = ""
+
+# 监控哪些后缀文件变化要触发重编译
+include_ext = ["go", "tpl", "tmpl", "html"]
+
+# 哪些目录不监控
+exclude_dir = ["assets", "vendor", "tmp", ".git"]
+
+# 修改保存后，延迟 1 秒再触发 build
+delay       = 1000
+
+# build 失败时不启动进程
+stop_on_error = true
+
+# 构建日志文件
+log         = "build.log"
+
+# （可选）环境变量
+# [env]
+# GIN_MODE = "debug"
+# PORT     = "8080"

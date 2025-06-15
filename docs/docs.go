@@ -18,6 +18,70 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/analysis/class_avg": {
+            "get": {
+                "description": "获取每个班级的平均成绩，用于图表展示",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "获取班级平均成绩",
+                "responses": {
+                    "200": {
+                        "description": "班级平均成绩数组",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ClassAvgDoc"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "数据库查询失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/exam_count": {
+            "get": {
+                "description": "按 course_id 和 exam_date 去重统计考试次数（即课程+考试日视为一次考试）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "获取考试总次数",
+                "responses": {
+                    "200": {
+                        "description": "格式: { \\\"total\\\": 23 }",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/analysis/monthly": {
             "get": {
                 "description": "获取每月平均成绩的时间序列数据",
@@ -1571,6 +1635,9 @@ const docTemplate = `{
                 "class": {
                     "$ref": "#/definitions/models.ClassDoc"
                 },
+                "class_avg": {
+                    "$ref": "#/definitions/models.ClassAvgDoc"
+                },
                 "course": {
                     "$ref": "#/definitions/models.CourseDoc"
                 },
@@ -1618,18 +1685,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "models.ChartData": {
             "type": "object",
             "properties": {
@@ -1648,28 +1703,18 @@ const docTemplate = `{
             }
         },
         "models.Class": {
+            "type": "object"
+        },
+        "models.ClassAvgDoc": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
+                "avg_score": {
+                    "type": "number",
+                    "example": 85.2
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "students": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Student"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
+                "class_name": {
+                    "type": "string",
+                    "example": "高一1班"
                 }
             }
         },
@@ -1904,37 +1949,7 @@ const docTemplate = `{
             }
         },
         "models.Score": {
-            "type": "object",
-            "properties": {
-                "course_id": {
-                    "type": "integer",
-                    "example": 101
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "exam_date": {
-                    "type": "string",
-                    "example": "2025-05-01"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "score": {
-                    "type": "number",
-                    "example": 89.5
-                },
-                "student_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "models.ScoreDoc": {
             "type": "object",
@@ -1983,49 +1998,7 @@ const docTemplate = `{
             }
         },
         "models.Student": {
-            "type": "object",
-            "properties": {
-                "birth_date": {
-                    "type": "string",
-                    "example": "2005-09-01"
-                },
-                "class": {
-                    "description": "自动加载关联班级",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Class"
-                        }
-                    ]
-                },
-                "class_id": {
-                    "description": "外键字段",
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "gender": {
-                    "type": "string",
-                    "example": "男"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "张三"
-                },
-                "student_no": {
-                    "type": "string",
-                    "example": "20230001"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "models.StudentDoc": {
             "type": "object",

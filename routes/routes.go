@@ -74,6 +74,7 @@ func InitRouter() *gin.Engine {
 
 			// ✅ 数据分析（无需权限控制）
 			auth.GET("/analytics/course-stats", controllers.GetCourseStats)
+			auth.GET("/analysis/class_avg", controllers.GetClassAvgScore)
 			auth.GET("/analysis/monthly", controllers.GetMonthlyStats)
 			auth.GET("/analysis/pass_rate", controllers.GetPassRate)
 			auth.GET("/analysis/exam_count", controllers.GetExamCount)
@@ -94,6 +95,7 @@ func InitRouter() *gin.Engine {
 			}
 		}
 	}
+	
 
 	return r
 }
