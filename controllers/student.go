@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"student-level-manage/config"
 	"student-level-manage/models"
 	"time"
-	"strconv"
-	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,20 +35,7 @@ func AddStudent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "student": student})
 }
 
-// GetStudents godoc
-// @Summary 获取学生列表
-// @Tags students
-// @Accept json
-// @Produce json
-// @Param page query int false "页码" default(1) example(1)
-// @Param size query int false "每页条数" default(10) example(10)
-// @Param query query string false "搜索关键词" example("张三")
-// @Param student_no query string false "学号" example("20230001")
-// @Param class_name query string false "班级" example("高一1班")
-// @Success 200 {object} map[string]interface{} "包含学生列表和总数"
-// @Failure 400 {object} map[string]string "分页参数错误"
-// @Failure 500 {object} map[string]string "查询失败"
-// @Router /api/students [get]
+
 // GetStudents godoc
 // @Summary 获取学生列表
 // @Tags students
@@ -130,7 +118,7 @@ func GetStudents(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
-	
+	fmt.Println("Total Scores:", total)
 
 	// 返回学生数据和总数
 	c.JSON(http.StatusOK, gin.H{
