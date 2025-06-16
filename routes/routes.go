@@ -62,7 +62,10 @@ func InitRouter() *gin.Engine {
 			// ✅ 成绩管理
 
 			auth.POST("/scores", middleware.RequirePermission("score:add"), controllers.AddScore)
+			// auth.GET("/scores", middleware.RequirePermission("score:view"), controllers.GetScores)
 			auth.GET("/scores", middleware.RequirePermission("score:view"), controllers.GetScores)
+			// auth.GET("/scores", controllers.GetScores) // 暂时移除权限中间件
+
 			auth.PUT("/scores/:id", middleware.RequirePermission("score:update"), controllers.UpdateScore)
 			auth.DELETE("/scores/:id", middleware.RequirePermission("score:delete"), controllers.DeleteScore)
 

@@ -11,3 +11,4 @@ type Score struct {
 	ExamDate  string  `json:"exam_date"  gorm:"index:idx_score,unique" example:"2025-05-01"`
 	Score     float64 `json:"score"      example:"89.5"`
 }
+

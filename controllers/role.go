@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"student-level-manage/config"
 	"student-level-manage/models"
-
 	"github.com/gin-gonic/gin"
 )
 

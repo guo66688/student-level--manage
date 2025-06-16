@@ -1,8 +1,8 @@
-{
-  "gopls": {
-    "formatting.gofumpt": true  // 启用 gofumpt 格式化
-},
-"go.alternateTools": {
+// {
+//   "gopls": {
+//     "formatting.gofumpt": true  // 启用 gofumpt 格式化
+// },
+// "go.alternateTools": {
     
-}
-}
+// }
+// }
