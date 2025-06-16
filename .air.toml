@@ -1,14 +1,24 @@
-# .air.toml —— Linux / WSL
-[build]
-cmd       = "go build -o ./tmp/main ."
-bin       = "./tmp/main"
-full_bin  = "./tmp/main"
-delay     = 1000
-stop_on_error = true
-log       = "build.log"
-debug = true
+# .air.toml (macOS 专用配置)
+root = "."  # 项目根目录（建议使用绝对路径，如：/Users/yourname/project）
 
-[watch]
-dirs = ["."]
-exclude_dir = ["assets", "vendor", "tmp", "node_modules"]
-include_ext = ["go"]
+[build]
+# ——编译指令（使用 macOS 的路径分隔符和可执行文件规范）——
+cmd = "go build -o ./tmp/main ."  # 关键改动：`./tmp/main` 替代 Windows 的 `tmp\main.exe`
+bin = "./tmp/main"                # macOS 可执行文件无后缀，路径用正斜杠
+
+# ——监控配置（优化 macOS 文件系统特性）——
+include_ext = ["go", "tpl", "tmpl", "html"]  # 监听的文件类型
+exclude_dir = ["assets", "vendor", "tmp", ".git", "node_modules"]  # 忽略目录（新增 node_modules）
+delay = 1000  # 防抖延迟（避免短时多次保存触发冗余编译）
+stop_on_error = true  # 编译失败时不启动错误程序
+log = "build.log"    # 编译日志存储路径
+
+# —— macOS 特殊优化项 ——
+[color]  # 终端输出着色（增强可读性）
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+clean_on_exit = true  # 退出时自动清理 tmp 目录（避免残留）
