@@ -4,9 +4,10 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
+
 	"student-level-manage/config"
 	"student-level-manage/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,34 +17,56 @@ import (
 // @Tags classes
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{} "返回信息"
+// @Param name query string false "班级名称（支持模糊匹配）" example("高一")
+// @Success 200 {object} map[string]interface{} "返回班级列表和总数"
 // @Router /classes [get]
-// 查询所有班级（带 Redis 缓存）
 func GetClasses(c *gin.Context) {
-	const cacheKey = "class:list"
+	var classes []models.Class
+	var total int64
 
-	// 1. 尝试从 Redis 读取
-	val, err := config.Redis.Get(config.Ctx, cacheKey).Result()
-	if err == nil {
-		var cached []models.Class
-		if json.Unmarshal([]byte(val), &cached) == nil {
-			c.JSON(http.StatusOK, cached)
-			return
+	name := c.DefaultQuery("name", "")
+
+	// 如果无 name 查询条件，尝试从 Redis 缓存获取
+	if name == "" {
+		const cacheKey = "class:list"
+		if val, err := config.Redis.Get(config.Ctx, cacheKey).Result(); err == nil {
+			var cached []models.Class
+			if json.Unmarshal([]byte(val), &cached) == nil {
+				c.JSON(http.StatusOK, gin.H{
+					"data":  cached,
+					"total": len(cached),
+				})
+				return
+			}
 		}
 	}
 
-	// 2. 查询数据库
-	var classes []models.Class
-	if err := config.DB.Find(&classes).Error; err != nil {
+	// 构建查询条件
+	db := config.DB.Model(&models.Class{})
+	if name != "" {
+		db = db.Where("name LIKE ?", "%"+name+"%")
+	}
+
+	if err := db.Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
 
-	// 3. 写入 Redis 缓存
-	data, _ := json.Marshal(classes)
-	config.Redis.Set(config.Ctx, cacheKey, data, time.Hour)
+	if err := db.Find(&classes).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
+		return
+	}
 
-	c.JSON(http.StatusOK, classes)
+	// 如果是无条件查询则缓存结果
+	if name == "" {
+		data, _ := json.Marshal(classes)
+		config.Redis.Set(config.Ctx, "class:list", data, time.Hour)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":  classes,
+		"total": total,
+	})
 }
 
 // 清除 Redis 缓存（用于新增/更新/删除时）
