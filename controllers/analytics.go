@@ -51,7 +51,6 @@ func GetCourseStats(c *gin.Context) {
 // @Failure 500 {object} map[string]string "查询失败"
 // @Router /analysis/monthly [get]
 func GetMonthlyStats(c *gin.Context) {
-
 	var results []models.Result
 	err := config.DB.
 		Raw(`
@@ -322,7 +321,6 @@ func GetDashboardStats(c *gin.Context) {
 	})
 }
 
-
 // GetExamCount godoc
 // @Summary 获取考试总次数
 // @Description 按 course_id 和 exam_date 去重统计考试次数（即课程+考试日视为一次考试）
@@ -337,7 +335,6 @@ func GetExamCount(c *gin.Context) {
 		Model(&models.Score{}).
 		Select("COUNT(DISTINCT course_id, exam_date)").
 		Count(&count).Error
-
 	if err != nil {
 		c.JSON(500, gin.H{"error": "查询失败"})
 		return
@@ -345,7 +342,6 @@ func GetExamCount(c *gin.Context) {
 
 	c.JSON(200, gin.H{"total": count})
 }
-
 
 // GetClassAvgScore godoc
 // @Summary 获取班级平均成绩
@@ -370,7 +366,6 @@ func GetClassAvgScore(c *gin.Context) {
 		Joins("JOIN classes ON students.class_id = classes.id").
 		Group("classes.name").
 		Scan(&results).Error
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "数据库查询失败"})
 		return
@@ -378,4 +373,101 @@ func GetClassAvgScore(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
+// GetAllRankings godoc
+// @Summary 获取全部排行榜数据
+// @Description 包含：学生平均成绩、课程平均成绩、班级平均成绩、课程通过率
+// @Tags analytics
+// @Produce json
+// @Success 200 {object} map[string]interface{} "各类排行榜"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /analysis/rank/all [get]
+func GetAllRankings(c *gin.Context) {
+	var (
+		studentRanks []models.ScoreRankRow
+		courseRanks  []models.CourseStats
+		classRanks   []models.ClassAvgDoc
+		passRates    []models.Pass
+	)
 
+	// 1. 学生平均成绩排行榜
+	err := config.DB.
+		Table("scores AS sc").
+		Select("st.name AS student_name, AVG(sc.score) AS avg_score").
+		Joins("JOIN students AS st ON sc.student_id = st.id").
+		Group("sc.student_id").
+		Order("avg_score DESC").
+		Scan(&studentRanks).Error
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "学生排行查询失败"})
+		return
+	}
+
+	// 2. 课程平均成绩（含最大/最小）
+	err = config.DB.Raw(`
+		SELECT 
+			c.course_name AS course_name,
+			AVG(s.score) AS avg_score,
+			MAX(s.score) AS max_score,
+			MIN(s.score) AS min_score
+		FROM scores s
+		JOIN courses c ON s.course_id = c.id
+		WHERE s.deleted_at IS NULL
+		GROUP BY s.course_id
+	`).Scan(&courseRanks).Error
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "课程排行查询失败"})
+		return
+	}
+
+	// 3. 班级平均成绩
+	err = config.DB.
+		Table("scores").
+		Select("classes.name AS class_name, AVG(scores.score) AS avg_score").
+		Joins("JOIN students ON scores.student_id = students.id").
+		Joins("JOIN classes ON students.class_id = classes.id").
+		Group("classes.name").
+		Scan(&classRanks).Error
+	if err != nil {
+		c.JSON(500, gin.H{"msg": "班级排行查询失败"})
+		return
+	}
+
+	// 4. 课程通过率（返回 course_name）
+	var courseList []models.Course
+	if err := config.DB.Find(&courseList).Error; err != nil {
+		c.JSON(500, gin.H{"msg": "课程列表查询失败"})
+		return
+	}
+
+	for _, course := range courseList {
+		var total, passed int64
+
+		config.DB.Model(&models.Score{}).
+			Where("course_id = ?", course.ID).
+			Count(&total)
+
+		config.DB.Model(&models.Score{}).
+			Where("course_id = ? AND score >= 60", course.ID).
+			Count(&passed)
+
+		rate := 0.0
+		if total > 0 {
+			rate = float64(passed) / float64(total) * 100
+		}
+
+		passRates = append(passRates, models.Pass{
+			CourseName: course.CourseName,
+			Passed:     passed,
+			Total:      total,
+			Rate:       rate,
+		})
+	}
+
+	// 返回统一结构
+	c.JSON(200, gin.H{
+		"student_avg": studentRanks,
+		"course_avg":  courseRanks,
+		"class_avg":   classRanks,
+		"pass_rate":   passRates,
+	})
+}
