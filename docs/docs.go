@@ -432,6 +432,29 @@ const docTemplate = `{
                 "summary": "图表列表",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "default": 1,
+                        "example": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "example": 10,
+                        "description": "每页条数",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"成绩趋势\"",
+                        "description": "查询关键词",
+                        "name": "query",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "example": "\"score-trend\"",
                         "description": "图表类型（可选）",
@@ -441,10 +464,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "返回信息",
+                        "description": "包含图表列表和总数",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "查询失败",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -484,6 +516,9 @@ const docTemplate = `{
         },
         "/charts/data": {
             "get": {
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -499,22 +534,22 @@ const docTemplate = `{
                         "name": "type",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"static\" 或 \"dynamic\"",
+                        "description": "数据源类型",
+                        "name": "data_source_type",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "图表数据内容",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "缺少参数",
+                        "description": "返回图表数据",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
@@ -2062,6 +2097,10 @@ const docTemplate = `{
         "models.ChartData": {
             "type": "object",
             "properties": {
+                "data_source_type": {
+                    "description": "\"static\" 或 \"dynamic\"",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

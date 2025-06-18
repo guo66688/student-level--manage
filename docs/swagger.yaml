@@ -41,6 +41,9 @@ definitions:
     type: object
   models.ChartData:
     properties:
+      data_source_type:
+        description: '"static" 或 "dynamic"'
+        type: string
       id:
         type: string
       meta:
@@ -604,6 +607,23 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页条数
+        example: 10
+        in: query
+        name: size
+        type: integer
+      - description: 查询关键词
+        example: '"成绩趋势"'
+        in: query
+        name: query
+        type: string
       - description: 图表类型（可选）
         example: '"score-trend"'
         in: query
@@ -613,9 +633,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: 返回信息
+          description: 包含图表列表和总数
           schema:
             additionalProperties: true
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
             type: object
       summary: 图表列表
       tags:
@@ -723,6 +749,8 @@ paths:
       tags:
       - charts
     get:
+      consumes:
+      - application/json
       parameters:
       - description: 图表类型
         example: '"score-trend"'
@@ -730,18 +758,19 @@ paths:
         name: type
         required: true
         type: string
+      - description: 数据源类型
+        example: '"static" 或 "dynamic"'
+        in: query
+        name: data_source_type
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: 图表数据内容
+          description: 返回图表数据
           schema:
-            type: object
-        "400":
-          description: 缺少参数
-          schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: 查询失败

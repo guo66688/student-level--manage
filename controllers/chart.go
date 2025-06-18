@@ -4,13 +4,17 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"strconv"
+	"time"
+
 	"student-level-manage/config"
 	"student-level-manage/models"
-	"time"
+	services "student-level-manage/services/charts" // Ensure the correct import
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ListCharts godoc
@@ -18,32 +22,79 @@ import (
 // @Tags charts
 // @Accept json
 // @Produce json
+// @Param page query int false "页码" default(1) example(1)
+// @Param size query int false "每页条数" default(10) example(10)
+// @Param query query string false "查询关键词" example("成绩趋势")
 // @Param type query string false "图表类型（可选）" example("score-trend")
-// @Success 200 {object} map[string]interface{} "返回信息"
+// @Success 200 {object} map[string]interface{} "包含图表列表和总数"
+// @Failure 500 {object} map[string]string "查询失败"
 // @Router /charts [get]
-// 图表列表接口（支持按类型筛选）
 func ListCharts(c *gin.Context) {
-	typeParam := c.Query("type")
+	var charts []models.ChartData
+
+	// 获取分页参数
+	page := c.DefaultQuery("page", "1")
+	size := c.DefaultQuery("size", "10")
+	query := c.DefaultQuery("query", "")
+	typeParam := c.DefaultQuery("type", "")
+
+	// 将字符串转换为整数
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "页码无效"})
+		return
+	}
+	sizeInt, err := strconv.Atoi(size)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "每页条数无效"})
+		return
+	}
+
+	// 计算分页
+	skip := int64((pageInt - 1) * sizeInt)
+	limit := int64(sizeInt)
+
+	// 构建查询条件
 	filter := bson.M{}
+	if query != "" {
+		filter["meta.title"] = bson.M{"$regex": query, "$options": "i"}
+	}
 	if typeParam != "" {
 		filter["type"] = typeParam
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	cursor, err := config.MongoClient.Database("analysis").Collection("charts").Find(ctx, filter)
+
+	// 获取图表总数
+	count, err := config.MongoClient.Database("analysis").Collection("charts").CountDocuments(ctx, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败", "error": err.Error()})
+		return
+	}
+
+	// 查询图表数据
+	cursor, err := config.MongoClient.Database("analysis").Collection("charts").Find(ctx, filter, &options.FindOptions{
+		Skip:  &skip,
+		Limit: &limit,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败"})
 		return
 	}
 	defer cursor.Close(ctx)
 
-	var charts []models.ChartData
+	// 解析查询结果
 	if err := cursor.All(ctx, &charts); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "解析失败"})
 		return
 	}
-	c.JSON(http.StatusOK, charts)
+
+	// 返回查询结果
+	c.JSON(http.StatusOK, gin.H{
+		"data":  charts,
+		"total": count,
+	})
 }
 
 // AddChart godoc
@@ -72,6 +123,40 @@ func AddChart(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功"})
 }
 
+// GetChartData godoc
+// @Summary 获取图表数据
+// @Tags charts
+// @Accept json
+// @Produce json
+// @Param type query string true "图表类型" example("score-trend")
+// @Param data_source_type query string true "数据源类型" example("static" 或 "dynamic")
+// @Success 200 {object} map[string]interface{} "返回图表数据"
+// @Failure 500 {object} map[string]string "查询失败"
+// @Router /charts/data [get]
+func GetChartData(c *gin.Context) {
+	chartType := c.DefaultQuery("type", "")
+	dataSourceType := c.DefaultQuery("data_source_type", "dynamic")
+
+	// 使用工厂方法获取对应的生成器
+	generator, err := services.ChartDataGeneratorFactory(chartType, dataSourceType)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		return
+	}
+
+	// 动态生成图表数据
+	data, err := generator.GenerateData()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "生成图表数据失败", "error": err.Error()})
+		return
+	}
+
+	// 返回图表数据
+	c.JSON(http.StatusOK, gin.H{
+		"data": data,
+	})
+}
+
 // UpdateChart godoc
 // @Summary 更新图表
 // @Tags charts
@@ -81,7 +166,6 @@ func AddChart(c *gin.Context) {
 // @Param data body models.ChartData true "图表数据" example({"type":"pass-rate","meta":{"title":"通过率"},"values":[{"x":"课程1","y":92.5}]})
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /charts/{id} [put]
-// 图表编辑接口（根据 ID 更新）
 func UpdateChart(c *gin.Context) {
 	id := c.Param("id")
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -121,7 +205,6 @@ func UpdateChart(c *gin.Context) {
 // @Param id path string true "图表ID" example("60f7d2f5e13f1e3c48a2a1a2")
 // @Success 200 {object} map[string]interface{} "返回信息"
 // @Router /charts/{id} [delete]
-// 删除图表接口
 func DeleteChart(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := primitive.ObjectIDFromHex(idStr)
@@ -137,7 +220,6 @@ func DeleteChart(c *gin.Context) {
 		Database("analysis").
 		Collection("charts").
 		DeleteOne(ctx, bson.M{"_id": id})
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "删除失败"})
 		return
