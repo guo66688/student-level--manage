@@ -3,7 +3,7 @@ root = "."  # 项目根目录（建议使用绝对路径，如：/Users/yourname
 
 [build]
 # ——编译指令（使用 macOS 的路径分隔符和可执行文件规范）——
-cmd = "go build -o ./tmp/main ."  # 关键改动：`./tmp/main` 替代 Windows 的 `tmp\main.exe`
+cmd = "swag init && go build -o ./tmp/main ."  # 关键改动：在构建之前生成 Swagger 文档
 bin = "./tmp/main"                # macOS 可执行文件无后缀，路径用正斜杠
 
 # ——监控配置（优化 macOS 文件系统特性）——

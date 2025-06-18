@@ -77,6 +77,8 @@ definitions:
         example: "2024-01-01T12:00:00Z"
         type: string
     type: object
+  models.Course:
+    type: object
   models.CourseDoc:
     properties:
       course_code:
@@ -104,16 +106,12 @@ definitions:
   models.CourseStats:
     properties:
       avg_score:
-        example: 85.3
         type: number
-      course_id:
-        example: 101
-        type: integer
+      course_name:
+        type: string
       max_score:
-        example: 98
         type: number
       min_score:
-        example: 62
         type: number
     type: object
   models.LoginRequest:
@@ -128,16 +126,15 @@ definitions:
   models.Pass:
     properties:
       course_id:
-        example: 101
+        description: ✅ 添加这一行
         type: integer
+      course_name:
+        type: string
       passed:
-        example: 45
         type: integer
       rate:
-        example: 90
         type: number
       total:
-        example: 50
         type: integer
     type: object
   models.Permission:
@@ -336,7 +333,7 @@ info:
     name: icoffee
   description: 用于管理学生、课程、成绩和图表数据的后台 API。
   title: 学生成绩管理系统 API
-  version: "1.1"
+  version: "1.2"
 paths:
   /analysis/class_avg:
     get:
@@ -460,6 +457,26 @@ paths:
       summary: 获取成绩排行榜（含姓名）
       tags:
       - analytics
+  /analysis/rank/all:
+    get:
+      description: 包含：学生平均成绩、课程平均成绩、班级平均成绩、课程通过率
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 各类排行榜
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取全部排行榜数据
+      tags:
+      - analytics
   /analysis/rank/cache:
     delete:
       consumes:
@@ -503,383 +520,6 @@ paths:
       summary: 获取课程统计
       tags:
       - analytics
-  /api/classes:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取班级列表
-      tags:
-      - classes
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 班级信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Class'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加班级
-      tags:
-      - classes
-  /api/classes/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 班级ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 删除班级
-      tags:
-      - classes
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 班级ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 班级信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Class'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 更新班级
-      tags:
-      - classes
-  /api/permissions:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取权限列表
-      tags:
-      - permission
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 权限信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Permission'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加权限
-      tags:
-      - permission
-  /api/permissions/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 权限ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 删除权限
-      tags:
-      - permission
-  /api/role/permission_ids:
-    get:
-      parameters:
-      - description: 角色ID
-        example: 2
-        in: query
-        name: role_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: 获取角色的权限ID列表
-      tags:
-      - role
-  /api/role/permissions:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 设置角色权限
-      tags:
-      - permission
-  /api/roles:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取角色列表
-      tags:
-      - role
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 角色信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Role'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加角色
-      tags:
-      - role
-  /api/roles/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 角色ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 删除角色
-      tags:
-      - role
-  /api/scores:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取成绩列表
-      tags:
-      - scores
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 成绩信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Score'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加成绩
-      tags:
-      - scores
-  /api/scores/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 成绩ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 删除成绩
-      tags:
-      - scores
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 成绩ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 成绩信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Score'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 更新成绩
-      tags:
-      - scores
-  /api/students:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取学生列表
-      tags:
-      - students
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 学生信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Student'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加学生
-      tags:
-      - students
   /api/students/{id}:
     delete:
       consumes:
@@ -900,33 +540,6 @@ paths:
             additionalProperties: true
             type: object
       summary: 删除学生
-      tags:
-      - students
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 学生ID
-        example: 1
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 学生信息
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Student'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 更新学生信息
       tags:
       - students
   /api/students/by_class:
@@ -951,216 +564,6 @@ paths:
       summary: 根据班级获取学生
       tags:
       - students
-  /api/user/permissions:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取当前用户权限
-      tags:
-      - user
-  /api/user/role:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        example: 1
-        in: query
-        name: user_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取用户角色 ID
-      tags:
-      - user_role
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 设置用户角色
-      tags:
-      - user_role
-  /api/user/roles:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取当前用户角色
-      tags:
-      - user
-  /api/users:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取用户列表
-      tags:
-      - user
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 添加用户
-      tags:
-      - user
-  /api/users/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 删除用户
-      tags:
-      - user
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 更新用户信息
-      tags:
-      - user
-  /api/users/{id}/reset_password:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 用户ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 请求参数
-        in: body
-        name: data
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回信息
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 重置用户密码
-      tags:
-      - user
   /auth/login:
     post:
       consumes:
@@ -1369,6 +772,245 @@ paths:
       summary: 图表类型列表
       tags:
       - charts
+  /classes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 班级名称（支持模糊匹配）
+        example: '"高一"'
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回班级列表和总数
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取班级列表
+      tags:
+      - classes
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 班级信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加班级
+      tags:
+      - classes
+  /classes/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 班级ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除班级
+      tags:
+      - classes
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 班级ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 班级信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新班级
+      tags:
+      - classes
+  /courses:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取课程信息，并支持课程名称过滤
+      parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页条数
+        example: 10
+        in: query
+        name: size
+        type: integer
+      - description: 搜索关键词
+        example: '"高等数学"'
+        in: query
+        name: query
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 包含课程列表和总数
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 分页参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取课程列表
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: 新增一个课程记录
+      parameters:
+      - description: 课程信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回添加的课程
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 数据库写入失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 添加课程
+      tags:
+      - courses
+  /courses/{id}:
+    delete:
+      description: 删除指定 ID 的课程
+      parameters:
+      - description: 课程ID
+        example: 101
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 删除失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 删除课程
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: 根据 ID 更新课程信息
+      parameters:
+      - description: 课程ID
+        example: 101
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 课程信息
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新后的课程信息
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 未找到课程
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 更新课程
+      tags:
+      - courses
   /dashboard/stats:
     get:
       description: 包括学生数、课程数、班级数、平均成绩
@@ -1398,4 +1040,614 @@ paths:
       summary: '[文档] 展示所有模型结构体（用于 Swagger 展示）'
       tags:
       - ModelDocs
+  /permissions:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取权限列表
+      tags:
+      - permission
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 权限信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Permission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加权限
+      tags:
+      - permission
+  /permissions/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 权限ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除权限
+      tags:
+      - permission
+  /role/permission_ids:
+    get:
+      parameters:
+      - description: 角色ID
+        example: 2
+        in: query
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取角色的权限ID列表
+      tags:
+      - role
+  /role/permissions:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 设置角色权限
+      tags:
+      - permission
+  /roles:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取角色列表
+      tags:
+      - role
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加角色
+      tags:
+      - role
+  /roles/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除角色
+      tags:
+      - role
+  /scores:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页条数
+        example: 10
+        in: query
+        name: size
+        type: integer
+      - description: 搜索关键词
+        example: '"张三"'
+        in: query
+        name: query
+        type: string
+      - description: 学号
+        example: '"20230001"'
+        in: query
+        name: student_no
+        type: string
+      - description: 课程
+        example: '"数学"'
+        in: query
+        name: course_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 包含成绩列表和总数
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 分页参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取成绩列表
+      tags:
+      - scores
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 成绩信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Score'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加成绩
+      tags:
+      - scores
+  /scores/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 成绩ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除成绩
+      tags:
+      - scores
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 成绩ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 成绩信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Score'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新成绩
+      tags:
+      - scores
+  /students:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页条数
+        example: 10
+        in: query
+        name: size
+        type: integer
+      - description: 搜索关键词
+        example: '"张三"'
+        in: query
+        name: query
+        type: string
+      - description: 学号
+        example: '"20230001"'
+        in: query
+        name: student_no
+        type: string
+      - description: 班级
+        example: '"高一1班"'
+        in: query
+        name: class_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 包含学生列表和总数
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 分页参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 查询失败
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取学生列表
+      tags:
+      - students
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 学生信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加学生
+      tags:
+      - students
+  /students/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 学生ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 学生信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新学生信息
+      tags:
+      - students
+  /user/permissions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取当前用户权限
+      tags:
+      - user
+  /user/role:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        example: 1
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户角色 ID
+      tags:
+      - user_role
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 设置用户角色
+      tags:
+      - user_role
+  /user/roles:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取当前用户角色
+      tags:
+      - user
+  /users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户列表
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 添加用户
+      tags:
+      - user
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除用户
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新用户信息
+      tags:
+      - user
+  /users/{id}/reset_password:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回信息
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 重置用户密码
+      tags:
+      - user
 swagger: "2.0"
