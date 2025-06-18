@@ -523,6 +523,14 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "\"6852592bdc19f14fc8d8957c\"",
+                        "description": "图表ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "example": "\"score-trend\"",
                         "description": "图表类型",
                         "name": "type",

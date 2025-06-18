@@ -94,7 +94,8 @@ func InitRouter() *gin.Engine {
 				charts.PUT("/:id", middleware.RequirePermission("chart:update"), controllers.UpdateChart)
 				charts.DELETE("/:id", middleware.RequirePermission("chart:delete"), controllers.DeleteChart)
 				charts.GET("/types", controllers.GetChartTypes)
-				charts.GET("/data", controllers.GetChartFromMongo)
+				// charts.GET("/data", controllers.GetChartFromMongo)
+				charts.GET("/data", controllers.GetChartData)
 				charts.DELETE("/data", controllers.DeleteChartData)
 			}
 		}

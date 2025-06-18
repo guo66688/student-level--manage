@@ -3,14 +3,16 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"student-level-manage/config"
 	"student-level-manage/models"
-	services "student-level-manage/services/charts" // Ensure the correct import
+	services "student-level-manage/services/charts"
 
+	// Ensure the correct import
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -128,28 +130,52 @@ func AddChart(c *gin.Context) {
 // @Tags charts
 // @Accept json
 // @Produce json
+// @Param id query string true "图表ID" example("6852592bdc19f14fc8d8957c")
 // @Param type query string true "图表类型" example("score-trend")
 // @Param data_source_type query string true "数据源类型" example("static" 或 "dynamic")
 // @Success 200 {object} map[string]interface{} "返回图表数据"
 // @Failure 500 {object} map[string]string "查询失败"
 // @Router /charts/data [get]
 func GetChartData(c *gin.Context) {
+	fmt.Println("进入图表获取")
+
+	// 获取查询参数
+	chartID := c.DefaultQuery("id", "")
 	chartType := c.DefaultQuery("type", "")
 	dataSourceType := c.DefaultQuery("data_source_type", "dynamic")
+
+	// 打印接收到的查询参数，检查是否正确传递
+	fmt.Println("Received query params: id =", chartID, ", type =", chartType, ", data_source_type =", dataSourceType)
+
+	// 如果没有传递图表ID，返回错误
+	if chartID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "图表ID不能为空"})
+		return
+	}
 
 	// 使用工厂方法获取对应的生成器
 	generator, err := services.ChartDataGeneratorFactory(chartType, dataSourceType)
 	if err != nil {
+		// 打印错误，帮助调试
+		fmt.Println("Error in generator creation:", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 
-	// 动态生成图表数据
-	data, err := generator.GenerateData()
+	// 打印确认生成器已成功创建
+	fmt.Println("Generator created for chartType:", chartType, "and dataSourceType:", dataSourceType)
+
+	// 根据 chartID 获取特定图表数据
+	data, err := generator.GenerateDataByID(chartID)
 	if err != nil {
+		// 打印错误，帮助调试
+		fmt.Println("Error fetching data for chartID:", chartID, "Error:", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "生成图表数据失败", "error": err.Error()})
 		return
 	}
+
+	// 打印返回的数据，查看数据是否正确
+	fmt.Println("Data fetched successfully for chartID:", chartID, "Data:", data)
 
 	// 返回图表数据
 	c.JSON(http.StatusOK, gin.H{

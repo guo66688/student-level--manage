@@ -752,6 +752,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: 图表ID
+        example: '"6852592bdc19f14fc8d8957c"'
+        in: query
+        name: id
+        required: true
+        type: string
       - description: 图表类型
         example: '"score-trend"'
         in: query
