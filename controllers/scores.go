@@ -31,51 +31,82 @@ func AddScore(c *gin.Context) {
 	defer cancel()
 
 	var req models.Score
+	// 绑定请求的 JSON 数据
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
 		return
 	}
+
+	// 验证成绩是否在 0 到 100 之间
 	if req.Score < 0 || req.Score > 100 {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "分数必须在 0 到 100 之间"})
 		return
 	}
+
+	// 插入成绩数据
 	if err := config.DB.Create(&req).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "添加成绩失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功", "score": req})
 
-	// 添加成绩后更新 Redis 排行榜
+	// ✅ 添加成绩后更新 Redis 排行榜
 	var avg float64
+	// 查询学生的平均成绩
 	config.DB.
 		Table("scores").
 		Select("AVG(score)").
 		Where("student_id = ?", req.StudentID).
 		Scan(&avg)
 
-	_ = redisop.UpdateStudentRank(req.StudentID, avg) // 忽略错误处理
+	// 更新学生的排行榜数据
+	if err := redisop.UpdateStudentRank(req.StudentID, avg); err != nil {
+		fmt.Println("Error updating Redis rank:", err)
+	}
 
 	// ✅ 自动更新 Mongo 图表（按月统计）
 	var results []struct {
 		Month string `json:"month"`
 		Count int    `json:"count"`
 	}
+
+	// 按月统计成绩数量
 	config.DB.
 		Raw(`
 			SELECT DATE_FORMAT(exam_date, '%Y-%m') as month, COUNT(*) as count
 			FROM scores
 			GROUP BY month
 			ORDER BY month
-		`).Scan(&results)
+		`).
+		Scan(&results)
 
-	services.SaveOrUpdateChartData(ctx, models.ChartData{
+	// 转换统计数据为符合图表要求的结构
+	var months []string
+	var counts []float64 // 将 counts 转换为 []float64 类型
+	for _, result := range results {
+		months = append(months, result.Month)
+		counts = append(counts, float64(result.Count)) // 转换为 float64
+	}
+
+	// 组装图表数据
+	chartData := models.ChartData{
 		Type:   "monthly",
-		Meta:   map[string]interface{}{},
-		Values: results,
-	})
+		Meta:   []models.Meta{{Key: "title", Value: "月度成绩统计"}},
+		Values: []models.ChartValues{{X: months, Y: counts}}, // 正确的切片初始化
+	}
+
+	// 保存或更新 Mongo 图表数据
+	if err := services.SaveOrUpdateChartData(ctx, chartData); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "更新图表数据失败", "error": err.Error()})
+		return
+	}
 
 	// ✅ 自动更新课程通过率图表
-	services.UpdatePassRateChart(ctx)
+	// 只需要调用该函数，不捕获返回值
+	services.UpdatePassRateChart(ctx) // 直接调用，不返回值
+
+	// 成功返回
+	c.JSON(http.StatusOK, gin.H{"msg": "成绩和图表更新成功"})
 }
 
 // GetScores godoc

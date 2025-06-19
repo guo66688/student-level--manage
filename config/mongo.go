@@ -35,6 +35,6 @@ func InitMongo() {
 	}
 
 	MongoClient = client
-	MongoDB = MongoClient.Database("student_manage") // ✅ 指定数据库名
+	MongoDB = MongoClient.Database("analysis") // ✅ 指定数据库名
 	log.Println("✅ MongoDB连接成功")
 }

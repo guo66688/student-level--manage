@@ -9,7 +9,6 @@ import (
 
 	"student-level-manage/config"
 	"student-level-manage/models"
-	"student-level-manage/services"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -214,19 +213,19 @@ func ClearScoreRankingCache(c *gin.Context) {
 // @Failure 400 {object} map[string]string "缺少参数"
 // @Failure 500 {object} map[string]string "查询失败"
 // @Router /charts/data [get]
-func GetChartFromMongo(c *gin.Context) {
-	chartType := c.Query("type")
-	if chartType == "" {
-		c.JSON(400, gin.H{"msg": "缺少参数 type"})
-		return
-	}
-	data, err := services.GetChartData(chartType)
-	if err != nil {
-		c.JSON(500, gin.H{"msg": "查询失败"})
-		return
-	}
-	c.JSON(200, data)
-}
+// func GetChartFromMongo(c *gin.Context) {
+// 	chartType := c.Query("type")
+// 	if chartType == "" {
+// 		c.JSON(400, gin.H{"msg": "缺少参数 type"})
+// 		return
+// 	}
+// 	data, err := services.GetChartData(chartType)
+// 	if err != nil {
+// 		c.JSON(500, gin.H{"msg": "查询失败"})
+// 		return
+// 	}
+// 	c.JSON(200, data)
+// }
 
 // GetChartTypes godoc
 // @Summary 图表类型列表

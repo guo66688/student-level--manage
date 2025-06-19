@@ -40,6 +40,9 @@ func ListCharts(c *gin.Context) {
 	query := c.DefaultQuery("query", "")
 	typeParam := c.DefaultQuery("type", "")
 
+	// 打印获取的参数
+	fmt.Printf("Page: %s, Size: %s, Query: %s, Type: %s\n", page, size, query, typeParam)
+
 	// 将字符串转换为整数
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
@@ -52,9 +55,10 @@ func ListCharts(c *gin.Context) {
 		return
 	}
 
-	// 计算分页
+	// 打印分页计算信息
 	skip := int64((pageInt - 1) * sizeInt)
 	limit := int64(sizeInt)
+	fmt.Printf("Skip: %d, Limit: %d\n", skip, limit)
 
 	// 构建查询条件
 	filter := bson.M{}
@@ -65,15 +69,18 @@ func ListCharts(c *gin.Context) {
 		filter["type"] = typeParam
 	}
 
+	// 获取图表总数
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// 获取图表总数
+	// 打印正在查询图表总数
+	fmt.Println("Fetching chart count...")
 	count, err := config.MongoClient.Database("analysis").Collection("charts").CountDocuments(ctx, filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "查询失败", "error": err.Error()})
 		return
 	}
+	fmt.Printf("Chart count: %d\n", count)
 
 	// 查询图表数据
 	cursor, err := config.MongoClient.Database("analysis").Collection("charts").Find(ctx, filter, &options.FindOptions{
@@ -87,14 +94,45 @@ func ListCharts(c *gin.Context) {
 	defer cursor.Close(ctx)
 
 	// 解析查询结果
+	fmt.Println("Parsing chart data...")
 	if err := cursor.All(ctx, &charts); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "解析失败"})
 		return
 	}
 
+	// 打印解析后的图表数据
+	fmt.Printf("Parsed %d charts\n", len(charts))
+
+	// 构建返回的图表数据，符合新的格式：x 和 y 是独立的数组
+	var result []map[string]interface{}
+	for _, chart := range charts {
+		// 构建图表的 values 数据
+		var xValues []string
+		var yValues []float64
+
+		// 遍历 chart.Values 数组
+		for _, value := range chart.Values {
+			// 将 x 和 y 数据提取到独立的数组中
+			xValues = append(xValues, value.X...)
+			yValues = append(yValues, value.Y...)
+		}
+
+		// 将结果添加到返回数据中
+		result = append(result, map[string]interface{}{
+			"id":               chart.ID,
+			"type":             chart.Type,
+			"meta":             chart.Meta,
+			"data_source_type": chart.DataSourceType,
+			"values": map[string]interface{}{
+				"x": xValues, // x 是字符串数组
+				"y": yValues, // y 是数字数组
+			},
+		})
+	}
+
 	// 返回查询结果
 	c.JSON(http.StatusOK, gin.H{
-		"data":  charts,
+		"data":  result,
 		"total": count,
 	})
 }
@@ -110,11 +148,43 @@ func ListCharts(c *gin.Context) {
 // 图表新增接口
 func AddChart(c *gin.Context) {
 	var chart models.ChartData
+
+	// 直接使用 ShouldBindJSON 进行绑定
 	if err := c.ShouldBindJSON(&chart); err != nil {
+		fmt.Println("绑定错误:", err) // 打印具体的错误信息
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数错误"})
 		return
 	}
 
+	// 打印接收到的图表数据
+	fmt.Println("接收到的图表数据:", chart)
+
+	// 遍历 chart.Values 数组，确保每个 ChartValues 中的 X 和 Y 数据有效
+	for _, value := range chart.Values {
+		// 检查 X 是否有效
+		for _, x := range value.X {
+			if x == "" {
+				c.JSON(http.StatusBadRequest, gin.H{"msg": "x 值不能为空"})
+				return
+			}
+		}
+
+		// 检查 Y 是否有效
+		for _, y := range value.Y {
+			if y <= 0 {
+				c.JSON(http.StatusBadRequest, gin.H{"msg": "y 值必须是有效的数字"})
+				return
+			}
+		}
+
+		// 检查 X 和 Y 数组的长度是否匹配
+		if len(value.X) != len(value.Y) {
+			c.JSON(http.StatusBadRequest, gin.H{"msg": "x 和 y 数组长度不匹配"})
+			return
+		}
+	}
+
+	// 存储数据到数据库
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_, err := config.MongoClient.Database("analysis").Collection("charts").InsertOne(ctx, chart)
@@ -122,6 +192,7 @@ func AddChart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "添加失败"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"msg": "添加成功"})
 }
 
@@ -153,8 +224,11 @@ func GetChartData(c *gin.Context) {
 		return
 	}
 
+	// 获取数据库连接（假设在 config 包中）
+	db := config.MongoDB // 从 config 包中获取数据库连接
+
 	// 使用工厂方法获取对应的生成器
-	generator, err := services.ChartDataGeneratorFactory(chartType, dataSourceType)
+	generator, err := services.ChartDataGeneratorFactory(chartType, dataSourceType, db)
 	if err != nil {
 		// 打印错误，帮助调试
 		fmt.Println("Error in generator creation:", err.Error())
