@@ -46,6 +46,7 @@ func InitRouter() *gin.Engine {
 			// ✅ 用户角色绑定
 			auth.POST("/user/role", controllers.SetUserRole)
 			auth.GET("/user/role", controllers.GetUserRole) // 用于后台指定用户查角色
+
 			// ✅ 学生管理
 			auth.GET("/students", middleware.RequirePermission("student:view"), controllers.GetStudents)
 			auth.POST("/students", middleware.RequirePermission("student:add"), controllers.AddStudent)
